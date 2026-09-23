@@ -1,5 +1,7 @@
 import re
+from typing import List
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from app.schemas.justificacion import  JustificacionResponse
 
 
 class EstudianteBase(BaseModel):
@@ -33,3 +35,5 @@ class EstudianteCreate(EstudianteBase):
 class EstudianteResponse(EstudianteBase):
     model_config = ConfigDict(from_attributes=True)
 
+class EstudianteConJustificacionesResponse(EstudianteResponse):
+    justificaciones: List[JustificacionResponse] = []

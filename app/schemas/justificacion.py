@@ -1,6 +1,6 @@
 from datetime import date
 from typing import Optional
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from app.domain.modelos import TipoInasistencia, EstadoJustificativo
 
 class JustificacionCreate(BaseModel):
@@ -8,6 +8,7 @@ class JustificacionCreate(BaseModel):
     id_curso: str
     fecha_inasistencia: date
     tipo_inasistencia: TipoInasistencia
+    motivo: str = Field(..., min_length=5, max_length=250, description="Descripción del motivo de la inasistencia")
 
     @field_validator("fecha_inasistencia")
     @classmethod

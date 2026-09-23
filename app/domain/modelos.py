@@ -69,7 +69,10 @@ class Justificativo:
                  id_curso: str, 
                  fecha_inasistencia: date, 
                  tipo_inasistencia: TipoInasistencia, 
-                 estado: EstadoJustificativo.PENDIENTE
+                 estado: EstadoJustificativo.PENDIENTE,
+                 motivo: str,
+                 fecha_registro: Optional[date] = None,
+                 veces_editado: int = 0
                  ):
          self.id_justificativo = id_justificativo
          self.rut_estudiante = rut_estudiante
@@ -77,3 +80,6 @@ class Justificativo:
          self.fecha_inasistencia = fecha_inasistencia
          self.tipo_inasistencia = tipo_inasistencia
          self.estado = estado
+         self.motivo = motivo
+         self.fecha_registro = fecha_registro or date.today()
+         self.veces_editado = veces_editado
