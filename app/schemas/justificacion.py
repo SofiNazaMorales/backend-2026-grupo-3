@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from datetime import date
-from app.domain.models import TipoInasistencia, EstadoJustificativo
- 
+from app.domain.modelos import TipoInasistencia, EstadoJustificativo
  
 class JustificacionCreate(BaseModel):
     rut_estudiante: str
