@@ -1,3 +1,5 @@
+from fastapi import HTTPException
+
 from app.domain.curso import Curso
 from app.repositories.curso_repository import CursoRepository
 from app.schemas.curso import CursoCreate, CursoUpdate
@@ -12,8 +14,9 @@ class CursoService:
         curso_existente = self.repository.obtener_por_id(datos.id_curso)
 
         if curso_existente is not None:
-            raise ValueError(
-                f"Ya existe un curso con el ID '{datos.id_curso}'."
+            raise HTTPException(
+                status_code=400,
+                detail=f"Ya existe un curso con el ID '{datos.id_curso}'."
             )
 
         codigo_existente = self.repository.obtener_por_codigo(
@@ -21,8 +24,12 @@ class CursoService:
         )
 
         if codigo_existente is not None:
-            raise ValueError(
-                f"Ya existe un curso con el código '{datos.codigo_curso}'."
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    f"Ya existe un curso con el código "
+                    f"'{datos.codigo_curso}'."
+                )
             )
 
         curso = Curso(
@@ -40,8 +47,9 @@ class CursoService:
         curso = self.repository.obtener_por_id(id_curso)
 
         if curso is None:
-            raise ValueError(
-                f"No existe un curso con el ID '{id_curso}'."
+            raise HTTPException(
+                status_code=404,
+                detail=f"No existe un curso con el ID '{id_curso}'."
             )
 
         return curso
@@ -63,9 +71,12 @@ class CursoService:
                 curso_con_codigo is not None
                 and curso_con_codigo.id_curso != id_curso
             ):
-                raise ValueError(
-                    f"Ya existe un curso con el código "
-                    f"'{datos.codigo_curso}'."
+                raise HTTPException(
+                    status_code=400,
+                    detail=(
+                        f"Ya existe un curso con el código "
+                        f"'{datos.codigo_curso}'."
+                    )
                 )
 
             curso.codigo_curso = datos.codigo_curso
