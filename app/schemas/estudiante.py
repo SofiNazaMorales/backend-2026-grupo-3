@@ -5,9 +5,23 @@ from app.schemas.justificacion import  JustificacionResponse
 
 
 class EstudianteBase(BaseModel):
-    rut_estudiante: str = Field(..., min_length=8, max_length=12, description="RUT chileno formato 12345678-K o 12.345.678-K")
-    nombre: str = Field(..., min_length=2, max_length=50)
-    apellido: str = Field(..., min_length=2, max_length=50)
+    rut_estudiante: str = Field(
+        ..., 
+        min_length=8, 
+        max_length=12, 
+        description="RUT chileno formato",
+        examples=["12345678-K o 12.345.678-K"]
+    )
+    nombre: str = Field(
+        ..., 
+        min_length=2, 
+        max_length=50
+    )
+    apellido: str = Field(
+        ..., 
+        min_length=2, 
+        max_length=50
+    )
     email_institucional: EmailStr
     id_carrera: str
 
@@ -17,7 +31,7 @@ class EstudianteBase(BaseModel):
         rut_limpio = v.strip().upper()
 
         if "-" not in rut_limpio:
-            raise ValueError("El RUT debe incluir guión verificador (ej: 12345678-K)")
+            raise ValueError("El RUT debe incluir el guión de su dígito verificador (ej: 12345678-K)")
 
         cuerpo, dv = rut_limpio.split("-")
         cuerpo_sin_puntos = cuerpo.replace(".", "")

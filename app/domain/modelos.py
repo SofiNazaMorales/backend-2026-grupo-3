@@ -64,7 +64,7 @@ class Curso:
 
 class Justificativo:
     def __init__(self, 
-                 id_justificativo: int, 
+                 id_justificativo: str, 
                  rut_estudiante: str, 
                  id_curso: str, 
                  fecha_inasistencia: date, 
