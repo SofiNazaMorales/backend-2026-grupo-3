@@ -1,6 +1,6 @@
 # Proyecto desarrollo de backend grupo 3
 
-Backend desarrollado en Python, utilizando FastAPI, y Arquitectura: para la gestión de inasistencias estudiantiles.
+Backend desarrollado en Python, utilizando FastAPI, y Arquitectura: para la gestión de justificaciones a inasistencias estudiantiles.
 
 ## Instrucciones de Instalación y Ejecución
 
