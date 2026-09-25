@@ -5,8 +5,11 @@ Backend desarrollado en Python, utilizando FastAPI, y Arquitectura: para la gest
 integrantes y responsabilidades: 
 
 Carlos Melendez / Dominio y datos: Diseño de Modelos de Dominio y generación de la base de datos simulada
+
 Macarena Melin / API y lógica de negocio: Desarrollo de la capa de Enrutadores (Routers), exposición de Endpoints web y validación de peticiones HTTP.
+
 Angel Obreque / Calidad y pruebas: Implementación de la capa de Servicios y Repositorios, Pruebas postman
+
 Sofia Morales / Coordinación  y seguimiento + documentación e integración:  Arquitectura base, configuración global (`main.py`), manejador de errores estandarizado, documentación (README)
 
 ## Estructura del proyecto
