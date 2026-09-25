@@ -1,10 +1,9 @@
 from datetime import date
-from app.domain.modelos import (
+from . import (
     Carrera,
     Curso,
     Estudiante,
     Justificativo,
-
     EstadoJustificativo,
     TipoInasistencia,
     Facultad,
