@@ -2,7 +2,26 @@
 
 Backend desarrollado en Python, utilizando FastAPI, y Arquitectura: para la gestión de justificaciones a inasistencias estudiantiles.
 
-## Instrucciones de Instalación y Ejecución
+integrantes y responsabilidades: 
+
+Carlos Melendez / Dominio y datos: Diseño de Modelos de Dominio y generación de la base de datos simulada
+Macarena Melin / API y lógica de negocio: Desarrollo de la capa de Enrutadores (Routers), exposición de Endpoints web y validación de peticiones HTTP.
+Angel Obreque / Calidad y pruebas: Implementación de la capa de Servicios y Repositorios, Pruebas postman
+Sofia Morales / Coordinación  y seguimiento + documentación e integración:  Arquitectura base, configuración global (`main.py`), manejador de errores estandarizado, documentación (README)
+
+## Estructura del proyecto
+
+*    `app/domain/`                 # entidades y reglas del dominio
+*    `app/repositories/`           # almacenamiento en memoria
+*    `app/routers/`                # recibe solicitudes HTTP
+*    `app/schemas/`                # DTO y validaciones
+*    `app/services/`               # casos de uso y reglas de negocio
+*    `app/main.py`                 # crea y configura la aplicación
+*   `tests_manual/`               # colección Postman
+
+
+
+### Instrucciones de Instalación y Ejecución
 
 Para levantar este proyecto de manera local, lo primero a considerar es tener Python 3.10 o superior instalado
 
@@ -51,3 +70,5 @@ pasos:
     "message": "Mensaje descriptivo de la operación"
     }
 ```
+
+#### Acceso a documentación
