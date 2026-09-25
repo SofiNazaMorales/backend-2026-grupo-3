@@ -57,18 +57,29 @@ pasos:
 ```
 
 ### Contrato global
+
+**1. Respuestas Exitosas (200, 201)**
+Utilizan una estructura global de envoltorio (`_envelope`):
+
 ```json
-    {
-    "success": true,
-    "data": null,
-    "error": [
-        {
-        "code": "STRING",
-        "details": "STRING"
-        }
-    ],
-    "message": "Mensaje descriptivo de la operación"
-    }
+{
+  "success": true, 
+  "data": { ... }, 
+  "error": null,
+  "message": "Operación realizada con éxito"
+}
+```
+
+**2. Respuestas de Error (400, 404, 409, 422)**
+
+```json
+{
+  "error": {
+    "code": "string",
+    "message": "string",
+    "details": "array"
+  }
+}
 ```
 
 #### Acceso a documentación
