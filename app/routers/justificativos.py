@@ -47,6 +47,7 @@ def actualizar_justificativo(id_justificativo: str):
     return _envelope(True, data_prueba, None, "Justificativo actualizado correctamente (datos de prueba)")
 
 
-@router.delete("/{id_justificativo}")
+@router.delete("/{id_justificativo}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_justificativo(id_justificativo: str):
-    return _envelope(True, None, None, "Justificativo eliminado correctamente")
+
+ return None
