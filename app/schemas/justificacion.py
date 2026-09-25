@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from app.domain.modelos import TipoInasistencia, EstadoJustificativo
+from app.domain.enums import TipoInasistencia, EstadoJustificativo
 
 class JustificacionCreate(BaseModel):
     rut_estudiante: str 
