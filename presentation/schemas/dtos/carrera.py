@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
-from app.domain.enums import Facultad
+from domain.enums import Facultad
 
 
 class CarreraBase(BaseModel):

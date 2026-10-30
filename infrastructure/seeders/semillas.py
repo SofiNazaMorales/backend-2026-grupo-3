@@ -1,5 +1,5 @@
 from datetime import date
-from . import (
+from domain import (
     Carrera,
     Curso,
     Estudiante,

@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from app.schemas.estudiante import EstudianteCreate
+from presentation.schemas.dtos.estudiante import EstudianteCreate
 
 
 def test_crear_estudiante_valido():

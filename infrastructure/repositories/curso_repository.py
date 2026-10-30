@@ -1,4 +1,4 @@
-from app.domain.curso import Curso
+from domain.curso import Curso
 
 
 class CursoRepository:

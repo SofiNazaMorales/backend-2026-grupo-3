@@ -1,24 +1,24 @@
-from app.schemas.carrera import (
+from presentation.schemas.dtos.carrera import (
     CarreraBase,
     CarreraCreate,
     CarreraResponse,
 )
 
-from app.schemas.curso import (
+from presentation.schemas.dtos.curso import (
     CursoBase,
     CursoCreate,
     CursoUpdate,
     CursoResponse,
 )
 
-from app.schemas.estudiante import (
+from presentation.schemas.dtos.estudiante import (
     EstudianteBase, 
     EstudianteCreate, 
     EstudianteResponse,
     EstudianteConJustificacionesResponse,
 )
 
-from app.schemas.justificacion import (
+from presentation.schemas.dtos.justificacion import (
     JustificacionCreate,
     JustificacionUpdate,
     JustificacionResponse,

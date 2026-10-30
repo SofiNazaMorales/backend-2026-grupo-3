@@ -1,8 +1,8 @@
 from fastapi import HTTPException
 
-from app.domain.curso import Curso
-from app.repositories.curso_repository import CursoRepository
-from app.schemas.curso import CursoCreate, CursoUpdate
+from domain.curso import Curso
+from infrastructure.repositories.curso_repository import CursoRepository
+from presentation.schemas.dtos.curso import CursoCreate, CursoUpdate
 
 
 class CursoService:

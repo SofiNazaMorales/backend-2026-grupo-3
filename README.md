@@ -14,15 +14,30 @@ Sofia Morales / Coordinación  y seguimiento + documentación e integración:  A
 
 ## Estructura del proyecto
 
-*    `app/domain/`                 # entidades y reglas del dominio
-*    `app/repositories/`           # almacenamiento en memoria
-*    `app/routers/`                # recibe solicitudes HTTP
-*    `app/schemas/`                # DTO y validaciones
-*    `app/services/`               # casos de uso y reglas de negocio
-*    `app/main.py`                 # crea y configura la aplicación
-*   `tests_manual/`               # colección Postman
+El proyecto sigue una arquitectura por capas (presentation → application → domain, con infrastructure para persistencia):
 
-
+```
+app/main.py                    # crea y ensambla la API
+presentation/
+    dependencies.py            # inyección de dependencias
+    routers/                   # endpoints HTTP
+    schemas/dtos/              # DTO y validación
+application/services/          # coordinación de casos de uso
+domain/                        # entidades y reglas de negocio
+infrastructure/
+    database.py                # conexión y sesiones de BD (pendiente)
+    models/                    # modelos ORM/ODM (pendiente)
+    mappers/                   # conversión dominio-ORM (pendiente)
+    repositories/              # acceso y persistencia (en memoria por ahora)
+    seeders/                   # carga inicial (datos semilla)
+migrations/                    # migraciones Alembic (pendiente)
+    env.py
+    versions/
+tests/                         # pruebas unitarias (pytest)
+tests_manual/                  # colección Postman
+.env.example                   # variables sin secretos
+README.md
+```
 
 ### Instrucciones de Instalación y Ejecución
 

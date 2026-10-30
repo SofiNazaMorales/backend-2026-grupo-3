@@ -1,9 +1,9 @@
 import pytest
 from fastapi import HTTPException
 
-from app.repositories.curso_repository import CursoRepository
-from app.schemas.curso import CursoCreate, CursoUpdate
-from app.services.curso_service import CursoService
+from infrastructure.repositories.curso_repository import CursoRepository
+from presentation.schemas.dtos.curso import CursoCreate, CursoUpdate
+from application.services.curso_service import CursoService
 
 
 def crear_servicio():

@@ -1,6 +1,6 @@
 from datetime import date
 
-from app.domain.modelos import (
+from domain import (
     Carrera,
     Curso,
     Estudiante,

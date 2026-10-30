@@ -1,8 +1,8 @@
 import pytest
 from pydantic import ValidationError
 
-from app.domain.modelos import Facultad
-from app.schemas.carrera import CarreraCreate
+from domain import Facultad
+from presentation.schemas.dtos.carrera import CarreraCreate
 
 
 def test_crear_carrera_valida():
