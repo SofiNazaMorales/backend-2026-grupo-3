@@ -2,14 +2,14 @@ from fastapi import HTTPException
 
 from app.domain.curso import Curso
 from app.repositories.curso_repository import CursoRepository
-from app.schemas.curso import CursoCreate, CursoUpdate
+from app.schemas.curso_dto import CursoCreateDTO, CursoUpdateDTO
 
 
 class CursoService:
     def __init__(self, repository: CursoRepository):
         self.repository = repository
 
-    def crear_curso(self, datos: CursoCreate) -> Curso:
+    def crear_curso(self, datos: CursoCreateDTO) -> Curso:
 
         curso_existente = self.repository.obtener_por_id(datos.id_curso)
 
@@ -57,7 +57,7 @@ class CursoService:
     def actualizar_curso(
         self,
         id_curso: str,
-        datos: CursoUpdate
+        datos: CursoUpdateDTO
     ) -> Curso:
 
         curso = self.obtener_curso(id_curso)

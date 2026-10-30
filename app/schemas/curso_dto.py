@@ -1,6 +1,11 @@
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-class CursoBase(BaseModel):
+class CursoCreateDTO(BaseModel):
+    model_config = ConfigDict(
+        str_strip_whitespace=True,
+        extra="forbid"
+    )
+
     id_curso: str = Field(
         ..., 
         min_length=3, 
@@ -24,8 +29,8 @@ class CursoBase(BaseModel):
     )
     semestre: int = Field(
         ...,
-        gt=0,
-        lt=13,
+        ge=1,
+        le=14,
         description="Semestre dentro del plan de estudios",
         examples=[4],
     )
@@ -37,20 +42,29 @@ class CursoBase(BaseModel):
         examples=["ICI-INF"]
     )
 
-    @field_validator("id_curso")
-    @classmethod
-    def normalizar_id_curso(cls, v: str) -> str:
-        return v.strip().upper()
+class CursoUpdateDTO(BaseModel):
+    model_config = ConfigDict(
+        str_strip_whitespace=True,
+        extra="forbid"
+    )
 
-class CursoCreate(CursoBase):
-    pass
-
-class CursoUpdate(BaseModel):
     codigo_curso: str | None = Field(None, min_length=3, max_length=10)
     nombre_curso: str | None = Field(None, min_length=3, max_length=100)
-    semestre: int | None = Field(None, gt=0, lt=13)
+    semestre: int | None = Field(None, ge=1, le=14)
     id_carrera: str | None = Field(None, min_length=2, max_length=12)
 
-class CursoResponse(CursoBase):
-
+class CursoResponseDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+
+    id_curso: str
+    codigo_curso: str
+    nombre_curso: str
+    semestre: int
+    id_carrera: str
+
+class CursoPaginaDTO(BaseModel):
+    items: list[CursoResponseDTO]
+    total: int
+    pagina: int
+    limite: int
+    total_paginas: int

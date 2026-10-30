@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Response, status
-from app.domain.modelos import Facultad
+from app.domain.enums import Facultad
 
 router = APIRouter(prefix="/facultades", tags=["Facultades"])
 

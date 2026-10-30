@@ -1,10 +1,13 @@
 import re
-from typing import List
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
-from app.schemas.justificacion import  JustificacionResponse
 
 
-class EstudianteBase(BaseModel):
+class EstudianteCreateDTO(BaseModel):
+    model_config = ConfigDict(
+        str_strip_whitespace=True,
+        extra="forbid"
+    )
+
     rut_estudiante: str = Field(
         ..., 
         min_length=8, 
@@ -22,8 +25,16 @@ class EstudianteBase(BaseModel):
         min_length=2, 
         max_length=50
     )
-    email_institucional: EmailStr
-    id_carrera: str
+    email_institucional: EmailStr = Field(
+        ...,
+        description="Correo institucional UCT"
+    )
+    id_carrera: str = Field(
+        ...,
+        min_length=2,
+        max_length=12,
+        description="Acrónimo de las carrera a la que pertenece"
+    )
 
     @field_validator("rut_estudiante")
     @classmethod
@@ -40,14 +51,33 @@ class EstudianteBase(BaseModel):
             raise ValueError("El RUT contiene caracteres no válidos")
 
         cuerpo_formateado = f"{int(cuerpo_sin_puntos):,}". replace(",", ".")
-
         return f"{cuerpo_formateado}-{dv}"
 
-class EstudianteCreate(EstudianteBase):
-    pass
+class EstudianteUpdateDTO(BaseModel):
+    model_config = ConfigDict(
+            str_strip_whitespace=True,
+            extra="forbid"
+        )
 
-class EstudianteResponse(EstudianteBase):
+    nombre: str | None = Field(None, min_length=2, max_length=50)
+    apellido: str | None = Field(None, min_length=2, max_length=50)
+    email_institucional: EmailStr | None = None
+    id_carrera: str | None = Field(None, min_length=2, max_length=12)
+    estado_alumno: bool | None = None
+
+class EstudianteResponseDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-class EstudianteConJustificacionesResponse(EstudianteResponse):
-    justificaciones: List[JustificacionResponse] = []
+    rut_estudiante: str
+    nombre: str
+    apellido: str
+    email_institucional: EmailStr
+    id_carrera: str
+    estado_alumno: bool
+
+class EstudiantePaginaDTO(BaseModel):
+    items: list[EstudianteResponseDTO]
+    total: int
+    pagina: int
+    limite: int
+    total_paginas: int
