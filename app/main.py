@@ -2,11 +2,13 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi import HTTPException
 from fastapi import FastAPI
+from app.routers.curso import router as curso_router
 
 from app.routers import justificativos
 
 app = FastAPI(title="API - justificacion de inasistencias")
 
+app.include_router(curso_router)
 app.include_router(justificativos.router)
 
 
