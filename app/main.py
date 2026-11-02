@@ -3,6 +3,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi import HTTPException
 from fastapi import FastAPI
 from app.routers.curso import router as curso_router
+from app.routers.facultad import router as facultad_router
 
 from app.routers import justificativos
 
@@ -10,7 +11,7 @@ app = FastAPI(title="API - justificacion de inasistencias")
 
 app.include_router(curso_router)
 app.include_router(justificativos.router)
-
+app.include_router(facultad_router)
 
 @app.get("/")
 def raiz():
