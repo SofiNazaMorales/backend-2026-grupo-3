@@ -1,4 +1,6 @@
 from datetime import date, timedelta
+from sqlalchemy.orm import Session
+from app.mappers import justificativo_a_dict
 from app.domain.justificativo import Justificativo
 from app.domain.enums import TipoInasistencia
 from app.repositories import repositorios as repo
@@ -24,21 +26,7 @@ def _dias_habiles_entre(inicio: date, fin: date) -> int:
     return dias
 
 
-def _justificativo_a_dict(j: Justificativo) -> dict:
-    return {
-        "id_justificativo": j.id_justificativo,
-        "rut_estudiante": j.rut_estudiante,
-        "id_curso": j.id_curso,
-        "fecha_inasistencia": j.fecha_inasistencia,
-        "tipo_inasistencia": j.tipo_inasistencia,
-        "motivo": j.motivo,
-        "fecha_registro": j.fecha_registro,
-        "veces_editado": j.veces_editado,
-        "estado": j.estado,
-    }
-
-
-def crear_justificativo(data: dict) -> dict:
+def crear_justificativo(db: Session, data: dict) -> dict:
     hoy = date.today()
 
     if data["fecha_inasistencia"] > hoy:
@@ -55,19 +43,20 @@ def crear_justificativo(data: dict) -> dict:
             )
 
     nuevo = Justificativo(
-        id_justificativo="", 
+        id_justificativo=None, 
         rut_estudiante=data["rut_estudiante"],
         id_curso=data["id_curso"],
         fecha_inasistencia=data["fecha_inasistencia"],
         tipo_inasistencia=data["tipo_inasistencia"],
         motivo=data["motivo"],
+        fecha_registro=hoy,
     )
-    creado = repo.crear_justificativo(nuevo)
-    return _justificativo_a_dict(creado)
+    creado = repo.crear_justificativo(db, nuevo)
+    return justificativo_a_dict(creado)
 
 
-def editar_justificativo(id_justificativo: str, cambios: dict) -> dict:
-    actual = repo.obtener_justificativo_por_id(id_justificativo)
+def editar_justificativo(db: Session, id_justificativo: str, cambios: dict) -> dict:
+    actual = repo.obtener_justificativo_por_id(db, id_justificativo)
     if actual is None:
         raise ReglaDeNegocioError(
             "NOT_FOUND", "No existe un justificativo con el ID solicitado"
@@ -80,20 +69,21 @@ def editar_justificativo(id_justificativo: str, cambios: dict) -> dict:
         )
 
     cambios["veces_editado"] = actual.veces_editado + 1
-    actualizado = repo.actualizar_justificativo(id_justificativo, cambios)
-    return _justificativo_a_dict(actualizado)
+    actualizado = repo.actualizar_justificativo(db, id_justificativo, cambios)
+    return justificativo_a_dict(actualizado)
 
 
-def eliminar_justificativo(id_justificativo: str) -> bool:
-    return repo.eliminar_justificativo(id_justificativo)
+def eliminar_justificativo(db: Session, id_justificativo: str) -> bool:
+    return repo.eliminar_justificativo(db, id_justificativo)
 
 
-def obtener_justificativo(id_justificativo: str) -> dict | None:
-    encontrado = repo.obtener_justificativo_por_id(id_justificativo)
-    return _justificativo_a_dict(encontrado) if encontrado else None
+def obtener_justificativo(db: Session, id_justificativo: str) -> dict | None:
+    encontrado = repo.obtener_justificativo_por_id(db, id_justificativo)
+    return justificativo_a_dict(encontrado) if encontrado else None
 
 
 def listar_justificativos_con_filtros(
+    db: Session,
     id_curso: str | None = None,
     estado: str | None = None,
     tipo_inasistencia: str | None = None,
@@ -102,7 +92,7 @@ def listar_justificativos_con_filtros(
     pagina: int = 1,
     limite: int = 20,
 ) -> tuple[list[dict], int]:
-    items = [_justificativo_a_dict(j) for j in repo.listar_justificativos()]
+    items = [justificativo_a_dict(j) for j in repo.listar_justificativos(db)]
 
     if id_curso:
         items = [i for i in items if i["id_curso"] == id_curso]

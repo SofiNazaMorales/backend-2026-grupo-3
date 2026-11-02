@@ -2,3 +2,4 @@ fastapi
 uvicorn
 pydantic
 email-validator
+SQLAlchemy>=2.0,<2.1
