@@ -59,7 +59,7 @@ class CursoService:
         repo = CursoRepository(db)
 
         curso_existente = repo.obtener_por_id(id_curso)
-    if not curso_existente:
-        return None
-        
-    return repo.actualizar_en_bd(id_curso, datos_actualizados)
+        if not curso_existente:
+            return None
+            
+        return repo.actualizar_en_bd(id_curso, datos_actualizados)
