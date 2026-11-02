@@ -1,27 +1,27 @@
 from datetime import date
 
-from app.domain.modelos import (
-    Carrera,
-    Curso,
-    Estudiante,
-    Justificativo,
+from app.domain.carrera import Carrera
+from app.domain.curso import Curso
+from app.domain.estudiante import Estudiante
+from app.domain.justificativo import Justificativo
+from app.domain.enums import (
     EstadoJustificativo,
     Facultad,
     TipoInasistencia,
 )
 
-
 def test_crear_justificativo():
     justificativo = Justificativo(
-        id_justificativo=1,
+        id_justificativo="JUS-001",
         rut_estudiante="20.123.554-5",
         id_curso="CRS-INF1108",
         fecha_inasistencia=date(2026, 9, 20),
         tipo_inasistencia=TipoInasistencia.CLASE,
+        motivo="Inasistencia por motivos personales",
         estado=EstadoJustificativo.PENDIENTE,
     )
 
-    assert justificativo.id_justificativo == 1
+    assert justificativo.id_justificativo == "JUS-001"
     assert justificativo.rut_estudiante == "20.123.554-5"
     assert justificativo.id_curso == "CRS-INF1108"
     assert justificativo.fecha_inasistencia == date(2026, 9, 20)

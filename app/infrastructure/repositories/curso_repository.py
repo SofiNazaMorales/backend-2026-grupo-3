@@ -11,7 +11,7 @@ class CursoRepository:
     def crear(self, curso: Curso) -> Curso:
         modelo = curso_a_modelo(curso)
         self.session.add(modelo)
-        self.session.commit()
+        self.session.flush()
         self.session.refresh(modelo)
         return curso_a_dominio(modelo)
 

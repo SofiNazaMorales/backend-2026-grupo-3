@@ -1,11 +1,13 @@
+
 from app.domain.curso import Curso
 from app.infrastructure.models.curso_model import CursoModel
+
 
 def curso_a_dominio(modelo: CursoModel) -> Curso:
     return Curso(
         id_curso=modelo.id_curso,
-        codigo=modelo.codigo_curso,
-        nombre=modelo.nombre_curso,
+        codigo_curso=modelo.codigo_curso,
+        nombre_curso=modelo.nombre_curso,
         semestre=modelo.semestre,
         id_carrera=modelo.id_carrera,
     )

@@ -8,12 +8,13 @@ class CursoCreateDTO(BaseModel):
     )
 
     id_curso: str = Field(
-        ..., 
-        min_length=3, 
-        max_length=20, 
+        ...,
+        min_length=3,
+        max_length=20,
         description="Identificador único del curso (Formato: CRS-CODIGO)",
         examples=["CRS-INF1108"],
     )
+
     codigo_curso: str = Field(
         ...,
         min_length=3,
@@ -21,6 +22,7 @@ class CursoCreateDTO(BaseModel):
         description="Sigla oficial de la asignatura en el plan de estudio UCT",
         examples=["INF-1108"],
     )
+
     nombre_curso: str = Field(
         ...,
         min_length=3,
@@ -28,6 +30,7 @@ class CursoCreateDTO(BaseModel):
         description="Nombre de la asignatura",
         examples=["Desarrollo de Backend"],
     )
+
     semestre: int = Field(
         ...,
         ge=1,
@@ -35,13 +38,21 @@ class CursoCreateDTO(BaseModel):
         description="Semestre dentro del plan de estudios",
         examples=[4],
     )
+
     id_carrera: str = Field(
         ...,
         min_length=2,
         max_length=12,
-        description="Código de la carrera asociada (Acrónimo UCt)",
+        description="Código de la carrera asociada",
         examples=["ICI-INF"]
     )
+
+    @field_validator("id_curso", "codigo_curso", "id_carrera", mode="before")
+    @classmethod
+    def normalizar_codigos(cls, valor):
+        if isinstance(valor, str):
+            return valor.strip().upper()
+        return valor
 
 class CursoUpdateDTO(BaseModel):
     model_config = ConfigDict(
@@ -54,9 +65,14 @@ class CursoUpdateDTO(BaseModel):
     semestre: int | None = Field(None, ge=1, le=14)
     id_carrera: str | None = Field(None, min_length=2, max_length=12)
 
+    @field_validator("codigo_curso", "id_carrera", mode="before")
+    @classmethod
+    def normalizar_codigos(cls, valor):
+        if isinstance(valor, str):
+            return valor.strip().upper()
+        return valor
 class CursoResponseDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-
     id_curso: str
     codigo_curso: str
     nombre_curso: str

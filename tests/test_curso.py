@@ -1,11 +1,11 @@
 import pytest
 from pydantic import ValidationError
 
-from app.schemas.curso import CursoCreate
+from app.schemas.curso_dto import CursoCreateDTO
 
 
 def test_crear_curso_valido():
-    curso = CursoCreate(
+    curso = CursoCreateDTO(
         id_curso="CRS-INF1108",
         codigo_curso="INF-1108",
         nombre_curso="Desarrollo de Backend",
@@ -21,7 +21,7 @@ def test_crear_curso_valido():
 
 
 def test_normalizar_id_curso():
-    curso = CursoCreate(
+    curso = CursoCreateDTO(
         id_curso="crs-inf1108",
         codigo_curso="INF-1108",
         nombre_curso="Desarrollo de Backend",
@@ -34,7 +34,7 @@ def test_normalizar_id_curso():
 
 def test_rechazar_semestre_cero():
     with pytest.raises(ValidationError):
-        CursoCreate(
+        CursoCreateDTO(
             id_curso="CRS-TEST",
             codigo_curso="TEST-001",
             nombre_curso="Curso prueba",
@@ -45,7 +45,7 @@ def test_rechazar_semestre_cero():
 
 def test_rechazar_semestre_negativo():
     with pytest.raises(ValidationError):
-        CursoCreate(
+        CursoCreateDTO(
             id_curso="CRS-TEST",
             codigo_curso="TEST-001",
             nombre_curso="Curso prueba",

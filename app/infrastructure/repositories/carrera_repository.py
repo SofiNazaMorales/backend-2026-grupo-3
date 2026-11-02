@@ -11,7 +11,7 @@ class CarreraRepository:
     def crear(self, carrera: Carrera) -> Carrera:
         modelo = carrera_a_modelo(carrera)
         self.session.add(modelo)
-        self.session.commit()
+        self.session.flush()
         self.session.refresh(modelo)
         return carrera_a_dominio(modelo)
 

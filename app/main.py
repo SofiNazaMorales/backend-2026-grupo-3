@@ -1,37 +1,57 @@
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+
+from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
-from fastapi import HTTPException
-from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+from app.routers.estudiante import router as estudiante_router
 from app.routers.curso import router as curso_router
 from app.routers.facultad import router as facultad_router
-
 from app.routers import justificativos
 
-app = FastAPI(title="API - justificacion de inasistencias")
-
+app = FastAPI(
+    title="API - Justificación de Inasistencias"
+)
+app.include_router(estudiante_router)
 app.include_router(curso_router)
 app.include_router(justificativos.router)
 app.include_router(facultad_router)
 
+
 @app.get("/")
 def raiz():
-    return {"mensaje": "API funcionando correctamente"}
+    return {
+        "success": True,
+        "error": None,
+        "data": {
+            "estado": "funcionando"
+        },
+        "message": "API funcionando correctamente",
+        "statusCode": 200
+    }
 
 
 @app.exception_handler(RequestValidationError)
 async def manejador_global_errores(request, exc):
 
-    detalles = [{"campo": err["loc"][-1], "error": err["msg"]} for err in exc.errors()]
+    detalles = [
+        {
+            "campo": str(err["loc"][-1]),
+            "error": err["msg"]
+        }
+        for err in exc.errors()
+    ]
 
     return JSONResponse(
         status_code=422,
         content={
+            "success": False,
             "error": {
                 "code": "VALIDATION_ERROR",
-                "message": "Fallo en la validación de los datos enviados",
+                "message": "Falló la validación de los datos enviados.",
                 "details": detalles
-            }
+            },
+            "data": None,
+            "message": "La solicitud contiene errores de validación.",
+            "statusCode": 422
         }
     )
 
@@ -39,25 +59,32 @@ async def manejador_global_errores(request, exc):
 @app.exception_handler(HTTPException)
 async def manejador_httpexception(request, exc):
 
-    if exc.status_code == 400:
-        codigo_texto = "BAD_REQUEST"
+    codigos = {
+        400: "BAD_REQUEST",
+        401: "UNAUTHORIZED",
+        403: "FORBIDDEN",
+        404: "NOT_FOUND",
+        409: "CONFLICT",
+        422: "VALIDATION_ERROR",
+        500: "INTERNAL_SERVER_ERROR"
+    }
 
-    elif exc.status_code == 404:
-        codigo_texto = "NOT_FOUND"
-
-    elif exc.status_code == 409:
-        codigo_texto = "CONFLICT"
-
-    else:
-        codigo_texto = "APPLICATION_ERROR"
+    codigo_texto = codigos.get(
+        exc.status_code,
+        "APPLICATION_ERROR"
+    )
 
     return JSONResponse(
         status_code=exc.status_code,
         content={
+            "success": False,
             "error": {
                 "code": codigo_texto,
-                "message": exc.detail,
+                "message": str(exc.detail),
                 "details": []
-            }
+            },
+            "data": None,
+            "message": "No se pudo completar la operación.",
+            "statusCode": exc.status_code
         }
     )
