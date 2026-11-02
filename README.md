@@ -74,6 +74,25 @@ python run_seeder.py
 ```bash
    uvicorn app.main:app --reload
 ```
+- Swagger (OpenAPI interactivo): <http://127.0.0.1:8000/docs>
+- ReDoc: <http://127.0.0.1:8000/redoc>
+- Especificación JSON: <http://127.0.0.1:8000/openapi.json>
+
+**Si el puerto 8000 está ocupado** : cambia `PORT=8000` en tu `.env` y vuelve a ejecutar `docker compose up -d`; el `docker-compose.yml` usa ese mismo valor.
+
+**Sin Docker:** instala PostgreSQL, crea el usuario y la base con los mismos valores del `.env` y salta el paso 3.
+
+En Linux, sustituir la copia de PowerShell por:
+
+```bash
+test -f .env || cp .env.example .env
+
+nano .env
+```
+
+Los comandos `uv`, `git` y `docker compose` de la secuencia son los mismos. Docker debe estar instalado y en ejecución.
+La aplicación usa el puerto 8000; cambiar el puerto de PostgreSQL no cambia el de Swagger.
+
 
 ## Función de las capas (Arquitectura)
 

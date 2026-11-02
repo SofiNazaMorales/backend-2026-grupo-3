@@ -1,5 +1,6 @@
 from fastapi import HTTPException
-
+from sqlalchemy.orm import Session
+from app.repositories.curso_repository import CursoRepository
 from app.domain.curso import Curso
 from app.repositories.curso_repository import CursoRepository
 from app.schemas.curso_dto import CursoCreateDTO, CursoUpdateDTO
@@ -54,40 +55,11 @@ class CursoService:
 
         return curso
 
-    def actualizar_curso(
-        self,
-        id_curso: str,
-        datos: CursoUpdateDTO
-    ) -> Curso:
+    def actualizar_curso(db: Session, id_curso: str, datos_actualizados: dict):
+        repo = CursoRepository(db)
 
-        curso = self.obtener_curso(id_curso)
-
-        if datos.codigo_curso is not None:
-            curso_con_codigo = self.repository.obtener_por_codigo(
-                datos.codigo_curso
-            )
-
-            if (
-                curso_con_codigo is not None
-                and curso_con_codigo.id_curso != id_curso
-            ):
-                raise HTTPException(
-                    status_code=400,
-                    detail=(
-                        f"Ya existe un curso con el código "
-                        f"'{datos.codigo_curso}'."
-                    )
-                )
-
-            curso.codigo_curso = datos.codigo_curso
-
-        if datos.nombre_curso is not None:
-            curso.nombre_curso = datos.nombre_curso
-
-        if datos.semestre is not None:
-            curso.semestre = datos.semestre
-
-        if datos.id_carrera is not None:
-            curso.id_carrera = datos.id_carrera
-
-        return self.repository.actualizar(curso)
+        curso_existente = repo.obtener_por_id(id_curso)
+    if not curso_existente:
+        return None
+        
+    return repo.actualizar_en_bd(id_curso, datos_actualizados)
