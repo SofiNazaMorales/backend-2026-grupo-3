@@ -1,10 +1,9 @@
-"""Repositorio ORM que conserva el contrato de dominio de CursoService."""
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.domain.curso import Curso
 from app.mappers import curso_a_dict, curso_a_dominio
-from app.models.curso import curso_model
+from app.infrastructure.models import curso_model
 
 
 class CursoRepository:
