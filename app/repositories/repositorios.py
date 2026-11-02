@@ -5,7 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.domain.justificativo import Justificativo
-from app.models.justificativo import justificativo_model
+from app.infrastructure import models
 
 
 def crear_justificativo(db: Session, justificativo: Justificativo) -> justificativo_model:

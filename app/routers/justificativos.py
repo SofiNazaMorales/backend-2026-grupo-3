@@ -2,10 +2,9 @@ from datetime import date
 from pydantic import BaseModel, Field
 from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.orm import Session
-from app.database import get_db
-from app.domain.enums import TipoInasistencia
-from app.services import servicios as service
+from app.infrastructure.database import get_db
 from app.services.servicios import ReglaDeNegocioError
+from app.domain.enums import TipoInasistencia
 
 router = APIRouter(prefix="/justificativos", tags=["Justificativos"])
 
