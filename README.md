@@ -69,6 +69,7 @@ alembic upgrade head
 Para poblar la base de datos con los registros iniciales configurados por el equipo, ejecuta:
 ```bash
 python run_seeder.py
+```
 
 7. **Levantar el servidor web (Uvicorn):**
 ```bash
