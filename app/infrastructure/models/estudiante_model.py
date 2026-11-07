@@ -17,7 +17,7 @@ class EstudianteModel(Base):
     estado_alumno: Mapped[bool] = mapped_column(Boolean, default=True)
 
     id_carrera: Mapped[str] = mapped_column(
-        String(50), ForeignKey("carreras.id"), nullable=False
+        String(50), ForeignKey("carreras.id_carrera"), nullable=False
     )
 
     carrera: Mapped["CarreraModel"] = relationship(back_populates="estudiantes")

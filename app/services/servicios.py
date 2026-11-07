@@ -25,25 +25,28 @@ def _dias_habiles_entre(inicio: date, fin: date) -> int:
             dias += 1
     return dias
 
-
 def crear_justificativo(db: Session, data: dict) -> dict:
     hoy = date.today()
 
     if data["fecha_inasistencia"] > hoy:
         raise ReglaDeNegocioError(
-            "INVALID_DATE", "fecha_inasistencia: no puede ser una fecha futura"
+            "INVALID_DATE",
+            "fecha_inasistencia: no puede ser una fecha futura"
         )
 
     if data["tipo_inasistencia"] == TipoInasistencia.EVALUACION:
-        dias_transcurridos = _dias_habiles_entre(data["fecha_inasistencia"], hoy)
+        dias_transcurridos = _dias_habiles_entre(
+            data["fecha_inasistencia"], hoy
+        )
+
         if dias_transcurridos > PLAZO_DIAS_HABILES_JUSTIFICATIVO:
             raise ReglaDeNegocioError(
                 "DEADLINE_EXCEEDED",
-                f"El plazo de {PLAZO_DIAS_HABILES_JUSTIFICATIVO} días hábiles para justificar venció",
+                f"El plazo de {PLAZO_DIAS_HABILES_JUSTIFICATIVO} días hábiles para justificar venció"
             )
 
     nuevo = Justificativo(
-        id_justificativo=None, 
+        id_justificativo=None,
         rut_estudiante=data["rut_estudiante"],
         id_curso=data["id_curso"],
         fecha_inasistencia=data["fecha_inasistencia"],
@@ -51,31 +54,69 @@ def crear_justificativo(db: Session, data: dict) -> dict:
         motivo=data["motivo"],
         fecha_registro=hoy,
     )
-    creado = repo.crear_justificativo(db, nuevo)
-    return justificativo_a_dict(creado)
 
+    try:
+        creado = repo.crear_justificativo(db, nuevo)
+        db.commit()
+        return justificativo_a_dict(creado)
 
-def editar_justificativo(db: Session, id_justificativo: str, cambios: dict) -> dict:
-    actual = repo.obtener_justificativo_por_id(db, id_justificativo)
-    if actual is None:
-        raise ReglaDeNegocioError(
-            "NOT_FOUND", "No existe un justificativo con el ID solicitado"
+    except Exception:
+        db.rollback()
+        raise
+def editar_justificativo(
+    db: Session,
+    id_justificativo: str,
+    cambios: dict
+) -> dict:
+
+    try:
+        actual = repo.obtener_justificativo_por_id(
+            db, id_justificativo
         )
 
-    if actual.veces_editado >= MAX_EDICIONES_JUSTIFICATIVO:
-        raise ReglaDeNegocioError(
-            "EDIT_LIMIT_REACHED",
-            f"El justificativo ya alcanzó el máximo de {MAX_EDICIONES_JUSTIFICATIVO} ediciones",
+        if actual is None:
+            raise ReglaDeNegocioError(
+                "NOT_FOUND",
+                "No existe un justificativo con el ID solicitado"
+            )
+
+        if actual.veces_editado >= MAX_EDICIONES_JUSTIFICATIVO:
+            raise ReglaDeNegocioError(
+                "EDIT_LIMIT_REACHED",
+                f"El justificativo ya alcanzó el máximo de {MAX_EDICIONES_JUSTIFICATIVO} ediciones"
+            )
+
+        cambios["veces_editado"] = actual.veces_editado + 1
+
+        actualizado = repo.actualizar_justificativo(
+            db, id_justificativo, cambios
         )
 
-    cambios["veces_editado"] = actual.veces_editado + 1
-    actualizado = repo.actualizar_justificativo(db, id_justificativo, cambios)
-    return justificativo_a_dict(actualizado)
+        db.commit()
 
+        return justificativo_a_dict(actualizado)
 
-def eliminar_justificativo(db: Session, id_justificativo: str) -> bool:
-    return repo.eliminar_justificativo(db, id_justificativo)
+    except Exception:
+        db.rollback()
+        raise
 
+def eliminar_justificativo(
+    db: Session,
+    id_justificativo: str
+) -> bool:
+
+    try:
+        eliminado = repo.eliminar_justificativo(
+            db, id_justificativo
+        )
+
+        db.commit()
+
+        return eliminado
+
+    except Exception:
+        db.rollback()
+        raise
 
 def obtener_justificativo(db: Session, id_justificativo: str) -> dict | None:
     encontrado = repo.obtener_justificativo_por_id(db, id_justificativo)

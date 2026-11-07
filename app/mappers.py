@@ -1,14 +1,12 @@
-"""Conversiones explícitas entre persistencia, servicios y dominio."""
-from typing import TYPE_CHECKING
+
+"""Conversiones entre entidades de dominio y estructuras de respuesta."""
 
 from app.domain.curso import Curso
-
-if TYPE_CHECKING:
-    from app.models.curso import curso_model
-    from app.models.justificativo import justificativo_model
+from app.domain.justificativo import Justificativo
+from app.infrastructure.models.curso_model import CursoModel
 
 
-def justificativo_a_dict(j: "justificativo_model") -> dict:
+def justificativo_a_dict(j: Justificativo) -> dict:
     return {
         "id_justificativo": j.id_justificativo,
         "rut_estudiante": j.rut_estudiante,
@@ -22,7 +20,7 @@ def justificativo_a_dict(j: "justificativo_model") -> dict:
     }
 
 
-def curso_a_dominio(curso: "curso_model") -> Curso:
+def curso_a_dominio(curso: CursoModel) -> Curso:
     return Curso(
         id_curso=curso.id_curso,
         codigo_curso=curso.codigo_curso,

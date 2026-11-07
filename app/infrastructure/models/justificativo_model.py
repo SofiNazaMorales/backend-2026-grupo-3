@@ -10,7 +10,7 @@ class JustificativoModel(Base):
             String(20), ForeignKey("estudiantes.rut_estudiante"), nullable=False
         )
     id_curso: Mapped[str] = mapped_column(
-            String(50), ForeignKey("cursos.id"), nullable=False
+            String(50), ForeignKey("cursos.id_curso"), nullable=False
         )
     fecha_inasistencia: Mapped[Date] = mapped_column(Date, nullable=False)
     tipo_inasistencia: Mapped[str] = mapped_column(String(20), nullable=False)

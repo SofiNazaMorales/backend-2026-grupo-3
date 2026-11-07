@@ -1,12 +1,12 @@
 import pytest
 from pydantic import ValidationError
 
-from app.domain.modelos import Facultad
-from app.schemas.carrera import CarreraCreate
+from app.domain.enums import Facultad
+from app.schemas.carrera_dto import CarreraCreateDTO
 
 
 def test_crear_carrera_valida():
-    carrera = CarreraCreate(
+    carrera = CarreraCreateDTO(
         id_carrera="ICI-INF",
         codigo="PLAN-2023-INF",
         nombre_carrera="Ingenieria Civil Informatica",
@@ -23,7 +23,7 @@ def test_crear_carrera_valida():
 
 def test_rechazar_id_carrera_muy_corto():
     with pytest.raises(ValidationError):
-        CarreraCreate(
+        CarreraCreateDTO(
             id_carrera="I",
             codigo="PLAN-2023-INF",
             nombre_carrera="Ingenieria Civil Informatica",
@@ -34,7 +34,7 @@ def test_rechazar_id_carrera_muy_corto():
 
 def test_rechazar_codigo_muy_corto():
     with pytest.raises(ValidationError):
-        CarreraCreate(
+        CarreraCreateDTO(
             id_carrera="ICI-INF",
             codigo="123",
             nombre_carrera="Ingenieria Civil Informatica",
@@ -45,7 +45,7 @@ def test_rechazar_codigo_muy_corto():
 
 def test_rechazar_nombre_muy_corto():
     with pytest.raises(ValidationError):
-        CarreraCreate(
+        CarreraCreateDTO(
             id_carrera="ICI-INF",
             codigo="PLAN-2023-INF",
             nombre_carrera="IC",
@@ -56,7 +56,7 @@ def test_rechazar_nombre_muy_corto():
 
 def test_rechazar_duracion_cero():
     with pytest.raises(ValidationError):
-        CarreraCreate(
+        CarreraCreateDTO(
             id_carrera="ICI-INF",
             codigo="PLAN-2023-INF",
             nombre_carrera="Ingenieria Civil Informatica",
@@ -67,7 +67,7 @@ def test_rechazar_duracion_cero():
 
 def test_rechazar_duracion_mayor_a_14():
     with pytest.raises(ValidationError):
-        CarreraCreate(
+        CarreraCreateDTO(
             id_carrera="ICI-INF",
             codigo="PLAN-2023-INF",
             nombre_carrera="Ingenieria Civil Informatica",
@@ -78,7 +78,7 @@ def test_rechazar_duracion_mayor_a_14():
 
 def test_rechazar_facultad_invalida():
     with pytest.raises(ValidationError):
-        CarreraCreate(
+        CarreraCreateDTO(
             id_carrera="ICI-INF",
             codigo="PLAN-2023-INF",
             nombre_carrera="Ingenieria Civil Informatica",
