@@ -1,12 +1,11 @@
 from datetime import date, timedelta
-from sqlalchemy.orm import Session
 from app.mappers import justificativo_a_dict
 from app.domain.justificativo import Justificativo
 from app.domain.enums import TipoInasistencia
-from app.repositories import repositorios as repo
+from app.infrastructure.repositories import justificativo_repository as repo
 
 
-MAX_EDICIONES_JUSTIFICATIVO = 2  # TODO: 
+MAX_EDICIONES_JUSTIFICATIVO = 2
 PLAZO_DIAS_HABILES_JUSTIFICATIVO = 5
 
 
@@ -26,7 +25,7 @@ def _dias_habiles_entre(inicio: date, fin: date) -> int:
     return dias
 
 
-def crear_justificativo(db: Session, data: dict) -> dict:
+def crear_justificativo(db, data: dict) -> dict:
     hoy = date.today()
 
     if data["fecha_inasistencia"] > hoy:
@@ -55,8 +54,8 @@ def crear_justificativo(db: Session, data: dict) -> dict:
     return justificativo_a_dict(creado)
 
 
-def editar_justificativo(db: Session, id_justificativo: str, cambios: dict) -> dict:
-    actual = repo.obtener_justificativo_por_id(db, id_justificativo)
+def editar_justificativo(db, id_justificativo: str, cambios: dict) -> dict:
+    actual = repo.obtener_justificativo_por_id(db, id_justificativo, bloquear=True)
     if actual is None:
         raise ReglaDeNegocioError(
             "NOT_FOUND", "No existe un justificativo con el ID solicitado"
@@ -68,22 +67,28 @@ def editar_justificativo(db: Session, id_justificativo: str, cambios: dict) -> d
             f"El justificativo ya alcanzó el máximo de {MAX_EDICIONES_JUSTIFICATIVO} ediciones",
         )
 
+    fecha = cambios.get("fecha_inasistencia", actual.fecha_inasistencia)
+    tipo = cambios.get("tipo_inasistencia", actual.tipo_inasistencia)
+    if fecha > date.today():
+        raise ReglaDeNegocioError("INVALID_DATE", "La fecha no puede ser futura")
+    if tipo == TipoInasistencia.EVALUACION and _dias_habiles_entre(fecha, date.today()) > PLAZO_DIAS_HABILES_JUSTIFICATIVO:
+        raise ReglaDeNegocioError("DEADLINE_EXCEEDED", "El plazo de evaluación venció")
     cambios["veces_editado"] = actual.veces_editado + 1
     actualizado = repo.actualizar_justificativo(db, id_justificativo, cambios)
     return justificativo_a_dict(actualizado)
 
 
-def eliminar_justificativo(db: Session, id_justificativo: str) -> bool:
+def eliminar_justificativo(db, id_justificativo: str) -> bool:
     return repo.eliminar_justificativo(db, id_justificativo)
 
 
-def obtener_justificativo(db: Session, id_justificativo: str) -> dict | None:
+def obtener_justificativo(db, id_justificativo: str) -> dict | None:
     encontrado = repo.obtener_justificativo_por_id(db, id_justificativo)
     return justificativo_a_dict(encontrado) if encontrado else None
 
 
 def listar_justificativos_con_filtros(
-    db: Session,
+    db,
     id_curso: str | None = None,
     estado: str | None = None,
     tipo_inasistencia: str | None = None,
@@ -92,18 +97,6 @@ def listar_justificativos_con_filtros(
     pagina: int = 1,
     limite: int = 20,
 ) -> tuple[list[dict], int]:
-    items = [justificativo_a_dict(j) for j in repo.listar_justificativos(db)]
-
-    if id_curso:
-        items = [i for i in items if i["id_curso"] == id_curso]
-    if estado:
-        items = [i for i in items if i["estado"] == estado]
-    if tipo_inasistencia:
-        items = [i for i in items if i["tipo_inasistencia"] == tipo_inasistencia]
-
-    items.sort(key=lambda i: i[ordenar_por], reverse=(direccion == "desc"))
-
-    total = len(items)
-    inicio = (pagina - 1) * limite
-    pagina_items = items[inicio: inicio + limite]
-    return pagina_items, total
+    items, total = repo.consultar_pagina(db, id_curso, estado, tipo_inasistencia,
+                                        ordenar_por, direccion, pagina, limite)
+    return [justificativo_a_dict(item) for item in items], total

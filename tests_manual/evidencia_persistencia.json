@@ -1,0 +1,97 @@
+{
+  "resultado": "APROBADO",
+  "fecha_utc": "2026-11-09T02:06:20.634479+00:00",
+  "motor": "SQLite persistente en archivo temporal; modelos ORM reales, sin dobles",
+  "servidor": "Uvicorn HTTP real; dos procesos separados",
+  "procesos": [
+    17276,
+    16676
+  ],
+  "comprobaciones": [
+    {
+      "prueba": "Migración inicial sobre base vacía",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Seeder repetible, ejecución 1",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Seeder repetible, ejecución 2",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Estudiantes POST 201",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Estudiantes duplicado 409",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Justificativos POST 201",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Dos procesos de servidor diferentes",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Mismo justificativo después de reiniciar",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Estudiante después de reiniciar",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Filtro y paginación",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Edición 1 persistida",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Edición 2 persistida",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Tercera edición rechazada 400",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Validación 422",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Plazo vencido 400",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "No encontrado 404",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Actualizar estudiante 200",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Eliminar estudiante 204",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Estudiante eliminado 404",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Eliminar justificativo 204",
+      "resultado": "OK"
+    },
+    {
+      "prueba": "Justificativo eliminado 404",
+      "resultado": "OK"
+    }
+  ],
+  "limite": "La ejecución sin --postgres no certifica PostgreSQL. No se certifica Docker."
+}

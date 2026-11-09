@@ -1,0 +1,998 @@
+{
+  "info": {
+    "name": "Backend Grupo 3 - 6 casos de evaluación",
+    "description": "Ejecutar después de migraciones y seeder. Base URL configurable. El caso 02 permite detener y reiniciar Uvicorn entre POST y GET. El script verificar_persistencia.py realiza esa comprobación automáticamente con procesos HTTP reales.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "function localDate(d) { return d.getFullYear()+\"-\"+String(d.getMonth()+1).padStart(2,\"0\")+\"-\"+String(d.getDate()).padStart(2,\"0\"); }",
+          "const now = new Date();",
+          "pm.collectionVariables.set(\"hoy\", localDate(now));",
+          "const next = new Date(now); next.setDate(next.getDate()+1); pm.collectionVariables.set(\"manana\", localDate(next));",
+          "const old = new Date(now); old.setDate(old.getDate()-20); pm.collectionVariables.set(\"fecha_antigua\", localDate(old));",
+          "if (!pm.collectionVariables.get(\"run_id\")) pm.collectionVariables.set(\"run_id\", String(Date.now()));",
+          "if (!pm.collectionVariables.get(\"rut_prueba\")) {",
+          "  const body = String(10000000 + Math.floor(Math.random()*80000000));",
+          "  let sum=0, factor=2; for(let i=body.length-1;i>=0;i--) { sum += Number(body[i])*factor; factor=factor===7?2:factor+1; }",
+          "  const dv=11-(sum%11); pm.collectionVariables.set(\"rut_prueba\",body+\"-\"+(dv===11?\"0\":dv===10?\"K\":String(dv)));",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - CRUD de Estudiantes",
+      "item": [
+        {
+          "name": "Crear estudiante",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/estudiantes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rut_estudiante\": \"{{rut_prueba}}\",\n  \"nombre\": \"Ana\",\n  \"apellido\": \"Prueba\",\n  \"email_institucional\": \"prueba.{{run_id}}@alu.uct.cl\",\n  \"id_carrera\": \"ICI-INF\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(r.success).to.eql(true); pm.expect(typeof r.message).to.eql(\"string\"); });",
+                  "pm.collectionVariables.set(\"rut_prueba\", pm.response.json().data.rut_estudiante);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar estudiante",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/estudiantes/{{rut_prueba}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(r.success).to.eql(true); pm.expect(typeof r.message).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar estudiante",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/estudiantes/{{rut_prueba}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ana María\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(r.success).to.eql(true); pm.expect(typeof r.message).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar estudiante sin justificativos",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/estudiantes/{{rut_prueba}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Comprobar eliminación",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/estudiantes/{{rut_prueba}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(typeof r.error.code).to.eql(\"string\"); pm.expect(typeof r.error.message).to.eql(\"string\"); pm.expect(r.error.details).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - CRUD de Justificativos y persistencia",
+      "item": [
+        {
+          "name": "Crear justificativo y guardar ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rut_estudiante\": \"20.123.554-5\",\n  \"id_curso\": \"CRS-INF1108\",\n  \"fecha_inasistencia\": \"{{hoy}}\",\n  \"tipo_inasistencia\": \"Clase Regular\",\n  \"motivo\": \"Certificado de prueba para la defensa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(r.success).to.eql(true); pm.expect(typeof r.message).to.eql(\"string\"); });",
+                  "pm.collectionVariables.set(\"justificativo_id\", pm.response.json().data.id_justificativo);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar el mismo ID - permite reiniciar aquí",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos/{{justificativo_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(r.success).to.eql(true); pm.expect(typeof r.message).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar motivo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos/{{justificativo_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motivo\": \"Motivo corregido para la demostración\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(r.success).to.eql(true); pm.expect(typeof r.message).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar justificativo",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos/{{justificativo_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verificar 404 después de eliminar",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos/{{justificativo_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(typeof r.error.code).to.eql(\"string\"); pm.expect(typeof r.error.message).to.eql(\"string\"); pm.expect(r.error.details).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Validaciones HTTP 422",
+      "item": [
+        {
+          "name": "Motivo demasiado corto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rut_estudiante\": \"20.123.554-5\",\n  \"id_curso\": \"CRS-INF1108\",\n  \"fecha_inasistencia\": \"{{hoy}}\",\n  \"tipo_inasistencia\": \"Clase Regular\",\n  \"motivo\": \"Mal\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 422\", function () { pm.response.to.have.status(422); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(typeof r.error.code).to.eql(\"string\"); pm.expect(typeof r.error.message).to.eql(\"string\"); pm.expect(r.error.details).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Fecha futura",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rut_estudiante\": \"20.123.554-5\",\n  \"id_curso\": \"CRS-INF1108\",\n  \"fecha_inasistencia\": \"{{manana}}\",\n  \"tipo_inasistencia\": \"Clase Regular\",\n  \"motivo\": \"Certificado de prueba para la defensa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 422\", function () { pm.response.to.have.status(422); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(typeof r.error.code).to.eql(\"string\"); pm.expect(typeof r.error.message).to.eql(\"string\"); pm.expect(r.error.details).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tipo fuera del Enum",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rut_estudiante\": \"20.123.554-5\",\n  \"id_curso\": \"CRS-INF1108\",\n  \"fecha_inasistencia\": \"{{hoy}}\",\n  \"tipo_inasistencia\": \"Vacaciones\",\n  \"motivo\": \"Certificado de prueba para la defensa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 422\", function () { pm.response.to.have.status(422); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(typeof r.error.code).to.eql(\"string\"); pm.expect(typeof r.error.message).to.eql(\"string\"); pm.expect(r.error.details).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Página inválida",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos?pagina=0"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 422\", function () { pm.response.to.have.status(422); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(typeof r.error.code).to.eql(\"string\"); pm.expect(typeof r.error.message).to.eql(\"string\"); pm.expect(r.error.details).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Reglas de negocio HTTP 400",
+      "item": [
+        {
+          "name": "Evaluación fuera de plazo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rut_estudiante\": \"20.123.554-5\",\n  \"id_curso\": \"CRS-INF1108\",\n  \"fecha_inasistencia\": \"{{fecha_antigua}}\",\n  \"tipo_inasistencia\": \"Evaluación\",\n  \"motivo\": \"Certificado de prueba para la defensa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(typeof r.error.code).to.eql(\"string\"); pm.expect(typeof r.error.message).to.eql(\"string\"); pm.expect(r.error.details).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear registro para límite de ediciones",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rut_estudiante\": \"20.123.554-5\",\n  \"id_curso\": \"CRS-INF1108\",\n  \"fecha_inasistencia\": \"{{hoy}}\",\n  \"tipo_inasistencia\": \"Clase Regular\",\n  \"motivo\": \"Certificado de prueba para la defensa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(r.success).to.eql(true); pm.expect(typeof r.message).to.eql(\"string\"); });",
+                  "pm.collectionVariables.set(\"limite_id\", pm.response.json().data.id_justificativo);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Edición 1 permitida",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos/{{limite_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motivo\": \"Motivo corregido en edición número 1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(r.success).to.eql(true); pm.expect(typeof r.message).to.eql(\"string\"); });",
+                  "pm.test(\"Contador persistido\", function () { pm.expect(pm.response.json().data.veces_editado).to.eql(1); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Edición 2 permitida",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos/{{limite_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motivo\": \"Motivo corregido en edición número 2\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(r.success).to.eql(true); pm.expect(typeof r.message).to.eql(\"string\"); });",
+                  "pm.test(\"Contador persistido\", function () { pm.expect(pm.response.json().data.veces_editado).to.eql(2); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Edición 3 rechazada",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos/{{limite_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motivo\": \"Motivo corregido en edición número 3\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(typeof r.error.code).to.eql(\"string\"); pm.expect(typeof r.error.message).to.eql(\"string\"); pm.expect(r.error.details).to.be.an(\"array\"); });",
+                  "pm.test(\"Regla de límite\", function () { pm.expect(pm.response.json().error.code).to.eql(\"EDIT_LIMIT_REACHED\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Limpiar registro de límite",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos/{{limite_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 - Filtros, orden y paginación",
+      "item": [
+        {
+          "name": "Preparar registro de filtro 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rut_estudiante\": \"20.123.554-5\",\n  \"id_curso\": \"CRS-INF1108\",\n  \"fecha_inasistencia\": \"{{hoy}}\",\n  \"tipo_inasistencia\": \"Clase Regular\",\n  \"motivo\": \"Certificado de prueba para la defensa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(r.success).to.eql(true); pm.expect(typeof r.message).to.eql(\"string\"); });",
+                  "pm.collectionVariables.set(\"filtro_1\", pm.response.json().data.id_justificativo);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Preparar registro de filtro 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rut_estudiante\": \"20.123.554-5\",\n  \"id_curso\": \"CRS-INF1108\",\n  \"fecha_inasistencia\": \"{{hoy}}\",\n  \"tipo_inasistencia\": \"Clase Regular\",\n  \"motivo\": \"Certificado de prueba para la defensa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(r.success).to.eql(true); pm.expect(typeof r.message).to.eql(\"string\"); });",
+                  "pm.collectionVariables.set(\"filtro_2\", pm.response.json().data.id_justificativo);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Preparar registro de filtro 3",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rut_estudiante\": \"20.123.554-5\",\n  \"id_curso\": \"CRS-INF1108\",\n  \"fecha_inasistencia\": \"{{hoy}}\",\n  \"tipo_inasistencia\": \"Clase Regular\",\n  \"motivo\": \"Certificado de prueba para la defensa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(r.success).to.eql(true); pm.expect(typeof r.message).to.eql(\"string\"); });",
+                  "pm.collectionVariables.set(\"filtro_3\", pm.response.json().data.id_justificativo);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Filtro, orden y paginación",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos?id_curso=CRS-INF1108&estado=Pendiente&tipo_inasistencia=Clase%20Regular&ordenar_por=fecha_inasistencia&direccion=desc&pagina=1&limite=2"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(r.success).to.eql(true); pm.expect(typeof r.message).to.eql(\"string\"); });",
+                  "pm.test(\"Dos elementos por página y total sin cortar\", function () { const d=pm.response.json().data; pm.expect(d.items.length).to.eql(2); pm.expect(d.total >= 3).to.eql(true); pm.expect(d.items.every(x => x.id_curso === \"CRS-INF1108\" && x.tipo_inasistencia === \"Clase Regular\" && x.estado === \"Pendiente\")).to.eql(true); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Limpiar registro de filtro 1",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos/{{filtro_1}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Limpiar registro de filtro 2",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos/{{filtro_2}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Limpiar registro de filtro 3",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos/{{filtro_3}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 - No encontrado y conflictos",
+      "item": [
+        {
+          "name": "Recurso inexistente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos/NO-EXISTE-PRUEBA"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(typeof r.error.code).to.eql(\"string\"); pm.expect(typeof r.error.message).to.eql(\"string\"); pm.expect(r.error.details).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "RUT duplicado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/estudiantes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rut_estudiante\": \"20.123.554-5\",\n  \"nombre\": \"Ana\",\n  \"apellido\": \"Prueba\",\n  \"email_institucional\": \"duplicado.{{run_id}}@alu.uct.cl\",\n  \"id_carrera\": \"ICI-INF\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(typeof r.error.code).to.eql(\"string\"); pm.expect(typeof r.error.message).to.eql(\"string\"); pm.expect(r.error.details).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Curso inexistente en clave foránea",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/justificativos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rut_estudiante\": \"20.123.554-5\",\n  \"id_curso\": \"NO-EXISTE-PRUEBA\",\n  \"fecha_inasistencia\": \"{{hoy}}\",\n  \"tipo_inasistencia\": \"Clase Regular\",\n  \"motivo\": \"Certificado de prueba para la defensa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(typeof r.error.code).to.eql(\"string\"); pm.expect(typeof r.error.message).to.eql(\"string\"); pm.expect(r.error.details).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Comprobar que la API sigue operativa",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/estudiantes/20.123.554-5"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Contrato global\", function () { const r=pm.response.json(); pm.expect(r.success).to.eql(true); pm.expect(typeof r.message).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

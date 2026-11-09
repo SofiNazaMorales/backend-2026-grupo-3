@@ -1,274 +1,225 @@
-# Proyecto desarrollo de backend grupo 3
+# API de justificativos de inasistencias - Grupo 3
 
-Backend desarrollado en Python, utilizando FastAPI, y Arquitectura: para la gestión de justificaciones a inasistencias estudiantiles.
+API REST acumulativa de Backend I y II. Administra carreras, cursos, estudiantes
+y justificativos con FastAPI, Pydantic, SQLAlchemy, PostgreSQL y Alembic.
+No incluye frontend. Referencia de arquitectura: https://github.com/DrSolonius/backend_S4.
 
-integrantes y responsabilidades: 
+## Ejecutar desde una copia limpia (PowerShell, Python 3.10 o superior)
 
-Carlos Melendez / Dominio y datos: Diseño de Modelos de Dominio y generación de la base de datos simulada
-
-Macarena Melin / API y lógica de negocio: Desarrollo de la capa de Enrutadores (Routers), exposición de Endpoints web y validación de peticiones HTTP.
-
-Angel Obreque / Calidad y pruebas: Implementación de la capa de Servicios y Repositorios, Pruebas postman
-
-Sofia Morales / Coordinación  y seguimiento + documentación e integración:  Arquitectura base, configuración global (`main.py`), manejador de errores estandarizado, documentación (README)
-
-## Estructura del proyecto
-
-*   `app/domain/`                 # Entidades y reglas del dominio
-*   `app/repositories/`           # Acceso a datos (PostgreSQL/SQLAlchemy)
-*   `app/infrastructure/`         # Modelos ORM, mappers y configuración BD
-*   `app/routers/`                # Recibe solicitudes HTTP
-*   `app/schemas/`                # DTO y validaciones Pydantic
-*   `app/services/`               # Casos de uso y reglas de negocio
-*   `app/main.py`                 # Crea y configura la aplicación
-*   `tests_manual/`               # Colección Postman
-*   `migrations/`                 # Versiones de la base de datos (Alembic)
-
-### Instrucciones de Instalación y Ejecución
-
-Para levantar este proyecto de manera local, lo primero a considerar es tener Python 3.10 o superior instalado
-
-pasos:
-
-1. **Clonar y ubicarse en repositorio:**
-```bash
-   git clone https://github.com/SofiNazaMorales/backend-2026-grupo-3
-   cd backend-2026-grupo-3
+```powershell
+git clone https://github.com/SofiNazaMorales/backend-2026-grupo-3
+cd backend-2026-grupo-3
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
+notepad .env
 ```
 
-2. **Crear y activar el entorno virtual (Obligatorio para aislar dependencias):**
+En Linux/macOS: `python3 -m venv .venv`, `.venv/bin/python -m pip install -r requirements-dev.txt`
+y `test -f .env || cp .env.example .env`. Usar `.venv/bin/python` en los comandos siguientes.
+Para ejecución sin pytest/HTTPX basta instalar `requirements.txt`.
 
-   Para Linux o macOS:
-```bash
-   python3 -m venv venv
-```
-   Para Windows
-```bash
-    python -m venv venv
-    venv\Scripts\activate.bat
-```
+### PostgreSQL
 
-3. **Instalar las dependencias del proyecto:**
-```bash
-    pip install -r requirements.txt
-```
+Debe existir un servidor PostgreSQL en ejecución. Se conservan los valores que ya
+usaba el proyecto: DB_USER=alumno, DB_NAME=clase, DB_HOST=localhost y DB_PORT=5432.
+`.env.example` contiene un ejemplo de contraseña, no una credencial de producción.
+Completar `.env` con los valores de la instalación existente; este archivo no se sube a Git.
+No cambiar usuarios existentes ni recrear una base que contenga datos.
 
-4. **Configuración de la Base de Datos (PostgreSQL):**
-El proyecto requiere variables de entorno para conectarse a la base de datos sin exponer credenciales. Copia el archivo de ejemplo:
-*En Linux/macOS:* `cp .env.example .env`
-*En Windows:* `copy .env.example .env`
-Abre el archivo `.env` recién creado y completa tus credenciales locales de PostgreSQL.
+Si es una instalación nueva y todavía no existen el usuario y la base, un administrador
+puede crearlos desde psql o pgAdmin (sustituir la contraseña de ejemplo):
 
-5. ** Ejecutar Migraciones (Alembic):**
-Para generar la estructura oficial de las tablas en tu base de datos de PostgreSQL, ejecuta:
-```bash
-alembic upgrade head
+```sql
+CREATE USER alumno WITH PASSWORD 'CAMBIAR_POR_UNA_CLAVE_LOCAL';
+CREATE DATABASE clase OWNER alumno;
 ```
 
-6. **Cargar Datos Iniciales (Seeders):**
-Para poblar la base de datos con los registros iniciales configurados por el equipo, ejecuta:
-```bash
-python run_seeder.py
+Aplicar el esquema y cargar los ejemplos:
+
+```powershell
+.\.venv\Scripts\python.exe -m alembic upgrade head
+.\.venv\Scripts\python.exe run_seeder.py
+.\.venv\Scripts\python.exe run_api.py
 ```
 
-7. **Levantar el servidor web (Uvicorn):**
-```bash
-   uvicorn app.main:app --reload
-```
-- Swagger (OpenAPI interactivo): <http://127.0.0.1:8000/docs>
-- ReDoc: <http://127.0.0.1:8000/redoc>
-- Especificación JSON: <http://127.0.0.1:8000/openapi.json>
+La migración inicial está pensada para una base vacía. Si ya hay tablas de otra
+versión, revisar primero el esquema y `alembic current`; no borrar tablas ni usar
+`stamp head` sin comprobar compatibilidad. El seeder inserta faltantes por ID:
+no cambia ni elimina usuarios, nombres, correos o registros existentes.
+Incluye Roberto Díaz y María López con los mismos RUT y correos originales.
+No existe un sistema de autenticación ni se agregaron cuentas de acceso nuevas.
 
-**Si el puerto 8000 está ocupado** : cambia `PORT=8000` en tu `.env` y vuelve a ejecutar `docker compose up -d`; el `docker-compose.yml` usa ese mismo valor.
+### Puertos
 
-**Sin Docker:** instala PostgreSQL, crea el usuario y la base con los mismos valores del `.env` y salta el paso 3.
+API HTTP: **8000**. PostgreSQL: **5432**. Son servicios independientes.
+`run_api.py` conserva 8000 por defecto; si está ocupado, reserva un puerto libre e
+imprime la URL real de Swagger. No termina procesos ajenos ni cambia DB_PORT.
 
-En Linux, sustituir la copia de PowerShell por:
-
-```bash
-test -f .env || cp .env.example .env
-
-nano .env
+```powershell
+.\.venv\Scripts\python.exe run_api.py --port 8001
 ```
 
-Los comandos `uv`, `git` y `docker compose` de la secuencia son los mismos. Docker debe estar instalado y en ejecución.
-La aplicación usa el puerto 8000; cambiar el puerto de PostgreSQL no cambia el de Swagger.
+Para desarrollo con recarga, elegir un puerto HTTP libre explícitamente:
 
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000
+```
 
-## Función de las capas (Arquitectura)
+Con 8000: Swagger http://127.0.0.1:8000/docs, ReDoc http://127.0.0.1:8000/redoc,
+OpenAPI http://127.0.0.1:8000/openapi.json. Si cambia el puerto, actualizar estas
+URLs y `base_url` de Postman. Docker no es obligatorio y este repositorio no depende
+de un archivo Compose para arrancar.
 
-| Capa | Responsabilidad | Qué NO hace |
+## Arquitectura y recorrido
+
+Se usan agrupaciones equivalentes a la sección 5.6 del enunciado:
+
+| Capa | Archivos | Responsabilidad |
 |---|---|---|
-| **Routers (Presentación)** | Recibe HTTP, valida entrada con DTO Pydantic, llama al servicio y devuelve respuesta JSON. | No contiene lógica de negocio ni consultas a la BD. |
-| **Services (Aplicación)** | Coordina los casos de uso, orquesta validaciones de tiempo/estado y aplica reglas de negocio. | No conoce HTTP ni SQL. |
-| **Domain (Dominio)** | Entidades puras (dataclasses), enumeradores (enums) y reglas inherentes al dato. | No depende de FastAPI, SQLAlchemy ni de la BD. |
-| **Infrastructure & Repositories** | Conexión, modelos ORM de SQLAlchemy, migraciones Alembic y manipulación de datos reales. | No decide reglas de negocio ni valida reglas lógicas. |
-
-## Recorrido de una solicitud (Ejemplo: Crear Justificativo)
+| Presentación | app/routers, app/schemas, app/presentation | HTTP, DTO, documentación y dependencias |
+| Aplicación | app/services | Casos de uso y reglas de aplicación |
+| Dominio | app/domain | Entidades y reglas independientes de FastAPI y SQLAlchemy |
+| Infraestructura | app/infrastructure | Sesiones, ORM, mappers, repositorios y seeders |
+| Ensamblaje | app/main.py | Registro de rutas y traducción global de errores |
+| Migraciones | migrations/versions | Evolución versionada de las tablas |
 
 ```mermaid
-sequenceDiagram
-    participant C as Cliente (Postman)
-    participant R as Router (Presentación)
-    participant S as Service (Aplicación)
-    participant P as Repository (Infraestructura)
-    participant M as Base de Datos (PostgreSQL)
-    
-    C->>R: POST /justificativos {datos...}
-    R->>R: Schema (DTO) valida el formato (422 si falla)
-    R->>S: crear_justificativo(datos)
-    S->>S: Aplica reglas: comprueba fecha futura y plazo de 5 días (400 si falla)
-    S->>P: crear(justificativo)
-    P->>M: INSERT vía SQLAlchemy
-    M-->>P: Registro guardado
-    P-->>S: Entidad Justificativo
-    S-->>R: Dict procesado
-    R-->>C: 201 Created + envoltorio _envelope
+flowchart LR
+    Cliente --> Router[Router y DTO]
+    Router --> Servicio
+    Servicio --> Dominio[Entidad de dominio]
+    Servicio --> Repositorio
+    Repositorio --> Mapper
+    Mapper --> ORM
+    Repositorio --> Sesion[Sesión SQLAlchemy]
+    Sesion --> PostgreSQL
 ```
 
-## Modelo de Datos
+Ejemplo: POST /cursos valida CursoCreateDTO; la dependencia construye CursoService
+con CursoRepository y una sesión por solicitud. El servicio comprueba duplicados
+y construye Curso. El repositorio guarda el ORM, confirma, refresca y convierte al
+dominio. La presentación devuelve JSON 201. Ante un fallo de escritura se revierte
+la transacción; la sesión se cierra al terminar. No hay consultas SQL en routers.
+Los módulos app/repositories son compatibilidad de imports antiguos; la implementación
+activa está en app/infrastructure/repositories.
 
-### Entidades (Dominio)
-```mermaid
-classDiagram
-    class Carrera {
-        id_carrera
-    }
-    class Curso {
-        id_curso
-        codigo_curso
-        nombre_curso
-        semestre
-        id_carrera
-    }
-    class Estudiante {
-        rut_estudiante
-    }
-    class Justificativo {
-        id_justificativo
-        rut_estudiante
-        id_curso
-        fecha_inasistencia
-        tipo_inasistencia
-        motivo
-        fecha_registro
-        veces_editado
-        estado
-        aceptar()
-        rechazar()
-    }
-    Carrera "1" --> "0..*" Curso : tiene
-    Estudiante "1" --> "0..*" Justificativo : emite
-    Curso "1" --> "0..*" Justificativo : recibe
-```
+## Contrato REST
 
-### Tablas (Infraestructura / PostgreSQL)
-```mermaid
-erDiagram
-    CARRERAS ||--o{ CURSOS : "id_carrera"
-    ESTUDIANTES ||--o{ JUSTIFICATIVOS : "rut_estudiante"
-    CURSOS ||--o{ JUSTIFICATIVOS : "id_curso"
-
-    CURSOS {
-        string id_curso PK
-        string codigo_curso
-        string nombre_curso
-        int semestre
-        string id_carrera FK
-    }
-    JUSTIFICATIVOS {
-        string id_justificativo PK
-        string rut_estudiante FK
-        string id_curso FK
-        date fecha_inasistencia
-        string tipo_inasistencia
-        string motivo
-        date fecha_registro
-        int veces_editado
-        string estado
-    }
-    ESTUDIANTES {
-        string rut_estudiante PK
-    }
-    CARRERAS {
-        string id_carrera PK
-    }
-```
-
-## Reglas de Negocio y Validaciones
-
-| # | Regla / Validación | Respuesta | Ubicación en código |
-|---|---|---|---|
-| RN1 | **Plazo de evaluación:** Un justificativo por Evaluación no puede enviarse si pasaron más de 5 días hábiles. | 400 | `services/servicios.py` |
-| RN2 | **Límite de ediciones:** Un justificativo no puede editarse más de 2 veces. | 400 | `services/servicios.py` |
-| RN3 | **Restricción temporal:** La fecha de inasistencia no puede ser una fecha futura. | 422 | `domain/justificativo.py` |
-| VAL1 | **Longitud mínima:** El motivo del justificativo debe tener al menos 10 caracteres. | 422 | `domain/justificativo.py` |
-| VAL2 | **Rango numérico:** El semestre del curso debe estar entre 1 y 14. | 422 | `domain/curso.py` |
-| VAL3 | **Tipos estrictos:** El tipo de inasistencia debe ser un valor válido del Enum (`EVALUACION` o `CLASE_REGULAR`). | 422 | `domain/enums.py` |
-
-## Contrato REST (Endpoints)
-
-Todas las respuestas exitosas devuelven 200/201. Los fallos devuelven 400 (Regla de negocio), 404 (No encontrado), 409 (Conflicto) o 422 (Validación).
-
-| Método | URI | Descripción |
+| Método | URI | Acción |
 |---|---|---|
-| POST | `/justificativos` | Crea un nuevo justificativo de inasistencia. |
-| GET | `/justificativos` | Lista justificativos con soporte para filtros (id_curso, estado, tipo). |
-| GET | `/justificativos/{id}` | Obtiene los detalles de un justificativo específico. |
-| PUT | `/justificativos/{id}` | Edita un justificativo (suma al contador de ediciones). |
-| DELETE | `/justificativos/{id}` | Elimina un justificativo del registro. |
-| POST | `/cursos` | Registra un nuevo curso académico. |
-| GET | `/cursos/{id}` | Obtiene información de un curso. |
-| PUT | `/cursos/{id}` | Actualiza el nombre o semestre del curso. |
-| POST | `/estudiantes` | Registra un estudiante en el sistema. |
-| GET | `/estudiantes/{rut}` | Obtiene los datos de un estudiante por su RUT. |
-| PUT | `/estudiantes/{rut}` | Actualiza datos del estudiante. |
-| DELETE | `/estudiantes/{rut}` | Elimina un estudiante. |
-| POST | `/facultades` | Crea una nueva facultad/carrera. |
-| GET | `/facultades` | Lista las facultades registradas. |
-| GET | `/facultades/{id}` | Obtiene detalles de una facultad. |
-| DELETE | `/facultades/{id}` | Elimina una facultad del registro. |
+| POST | /justificativos | Crear |
+| GET | /justificativos | Filtrar, ordenar y paginar |
+| GET | /justificativos/{id_justificativo} | Obtener |
+| PUT | /justificativos/{id_justificativo} | Actualizar y contar edición |
+| DELETE | /justificativos/{id_justificativo} | Eliminar |
+| POST | /cursos | Crear |
+| GET | /cursos/{id_curso} | Obtener |
+| PUT | /cursos/{id_curso} | Actualizar |
+| POST | /estudiantes | Crear |
+| GET | /estudiantes | Listar |
+| GET | /estudiantes/{rut} | Obtener |
+| PUT | /estudiantes/{rut} | Actualizar |
+| DELETE | /estudiantes/{rut} | Eliminar |
+| POST | /carreras | Crear |
+| GET | /carreras | Listar |
+| GET | /carreras/{id_carrera} | Obtener |
+| GET | /facultades | Consultar catálogo fijo Enum |
+| GET | /facultades/{codigo} | Obtener valor del catálogo |
 
-### Contrato global
+18 operaciones de recursos, además de GET / para disponibilidad del proceso.
+Carrera es la cuarta entidad persistente; Facultad es un catálogo fijo, no una quinta tabla.
+No se afirma que exista CRUD de facultades ni que Facultad y Carrera sean lo mismo.
 
-**1. Respuestas Exitosas (200, 201)**
-Utilizan una estructura global de envoltorio (`_envelope`):
+Éxitos 200/201 conservan el contrato global:
 
 ```json
-{
-  "success": true, 
-  "data": { ... }, 
-  "error": null,
-  "message": "Operación realizada con éxito"
-}
+{"success": true, "data": {}, "error": null, "message": "Operación realizada correctamente"}
 ```
 
-**2. Respuestas de Error (400, 404, 409, 422)**
+DELETE correcto devuelve 204 sin cuerpo; un ID inexistente devuelve 404.
+Los errores controlados usan:
 
 ```json
-{
-  "error": {
-    "code": "string",
-    "message": "string",
-    "details": "array"
-  }
-}
+{"error": {"code": "NOT_FOUND", "message": "Recurso no encontrado", "details": []}}
 ```
 
-### Acceso a documentación (OpenAPI/Swagger)
-Una vez que el servidor esté corriendo con Uvicorn, la documentación interactiva (OpenAPI) generada automáticamente por FastAPI estará disponible en las siguientes rutas:
+400: regla de negocio. 404: recurso inexistente. 409: duplicado o restricción
+referencial (relación inexistente o registro en uso). 422: esquema/validación.
+OpenAPI incluye DTO de entrada/salida, ejemplos, parámetros y errores por operación.
 
-- **Swagger UI** (Recomendado para pruebas manuales): [http://localhost:8000/docs](http://localhost:8000/docs)
-- **ReDoc** (Vista de documentación alternativa): [http://localhost:8000/redoc](http://localhost:8000/redoc)
-- **Esquema OpenAPI JSON**: [http://localhost:8000/openapi.json](http://localhost:8000/openapi.json)
+### Consulta combinada
 
----
+`GET /justificativos?id_curso=CRS-INF1108&estado=Pendiente&ordenar_por=fecha_inasistencia&direccion=desc&pagina=1&limite=20`
 
-### Ejecución de Pruebas (Validación de Persistencia y Reglas)
-El proyecto incluye un conjunto de 6 pruebas reproducibles para verificar CRUD, filtros, reglas de negocio y respuestas de error HTTP.
+Filtra en SQL, cuenta el conjunto filtrado, ordena y luego pagina; usa el ID como
+desempate estable. Direcciones asc/desc; página >=1; límite 1..100; orden validado.
+Los metadatos se conservan dentro de `data`, respetando el envoltorio del grupo:
 
-1. Localiza el archivo de colección exportado dentro de la carpeta `tests_manual/`.
-2. Importa el archivo en tu cliente API de preferencia (Postman o Thunder Client).
-3. Con el servidor corriendo localmente, ejecuta la colección completa. 
-4. Los datos creados o modificados durante la prueba permanecerán en la base de datos PostgreSQL incluso tras reiniciar el servidor web, demostrando la persistencia.
+```json
+{"success":true,"data":{"items":[],"total":0,"pagina":1,"limite":20,"total_paginas":0},"error":null,"message":"Justificativos obtenidos correctamente"}
+```
 
+## Reglas y validaciones
+
+1. Máximo dos ediciones exitosas por justificativo; un intento rechazado no suma.
+2. Una evaluación solo se justifica dentro de cinco días hábiles desde la inasistencia.
+   Se excluye el día inicial y se cuentan lunes a viernes, sin calendario de feriados.
+3. No se admiten inasistencias futuras; se comprueba también al actualizar.
+
+El dominio también conserva la restricción de no aceptar un justificativo rechazado,
+pero no se añadió un endpoint de transición de estado al contrato.
+
+Validaciones comprobables: motivo 10..500 caracteres (longitud), semestre 1..14
+(numérica), estado/tipo/facultad Enum (permitidos), email/fecha/RUT (formato), FK
+a recursos existentes (existencia relacionada) y plazo/ediciones (negocio).
+RUT se normaliza para consultar/crear sin cambiar los identificadores semilla;
+la validación de formato actual no certifica el dígito verificador matemático.
+
+## Modelo y diagramas
+
+Cada entidad tiene identificador y al menos cuatro atributos útiles; ver
+[diagramas](docs/modelo_y_alcance.md). La base impide referencias huérfanas.
+Los borrados de estudiantes referenciados por justificativos se rechazan con 409.
+
+## Pruebas reproducibles
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q tests
+.\.venv\Scripts\python.exe tests_manual/verificar_persistencia.py
+```
+
+pytest usa únicamente SQLite en memoria. La segunda prueba migra una SQLite
+temporal, ejecuta dos veces el seeder y reinicia realmente Uvicorn conservando
+la misma base de archivo. No modifica PostgreSQL ni certifica ese motor.
+
+Para comprobar PostgreSQL con la configuración existente y un esquema temporal aislado:
+
+```powershell
+.\.venv\Scripts\python.exe tests_manual/verificar_persistencia.py --postgres
+```
+
+Requiere PostgreSQL disponible y permiso CREATE SCHEMA para el usuario configurado.
+No cambia el usuario ni el puerto, no borra tablas existentes y elimina solamente
+el esquema temporal creado por esta prueba. Ver [pruebas manuales](tests_manual/README.md).
+Importar la colección Postman exportada y ajustar su base_url a la API que se pruebe.
+Los resultados realmente ejecutados se registran en tests_manual y
+[estado de cumplimiento](docs/cumplimiento_I_II.md).
+
+## Responsabilidades y contribuciones
+
+- Carlos Melendez: dominio y datos (entidades, modelos, migraciones y seeders).
+- Macarena Melin: API y lógica de negocio (rutas, servicios e integración con repositorios).
+- Ángel Obreque: calidad y pruebas (rama alexis/validacion-pruebas).
+- Sofía Morales: coordinación, documentación e integración.
+
+Se conservan los integrantes registrados en el README original.
+Cada integrante debe acreditar cinco commits significativos, una rama diferente de
+main y un PR. La implementación no fabrica ese historial ni publica cambios.
+
+## Defensa
+
+10 minutos de exposición/demostración y 5 de preguntas; máximo 15 diapositivas.
+Una persona sorteada debe poder presentar todo. Mostrar dos operaciones exitosas,
+un error y una consulta combinada; además, migración, seeder, pruebas y persistencia
+tras reinicio. Decisiones y límites se documentan en docs/modelo_y_alcance.md.

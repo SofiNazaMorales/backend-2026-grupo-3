@@ -1,5 +1,5 @@
 from datetime import date
-from pydantic import BaseModel, ConfigDict ,Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from app.domain.enums import EstadoJustificativo, TipoInasistencia
 
 class JustificativoCreateDTO(BaseModel):
@@ -33,6 +33,13 @@ class JustificativoCreateDTO(BaseModel):
         description="Descripción del motivo de la inasistencia"
         )
 
+    @field_validator("fecha_inasistencia")
+    @classmethod
+    def validar_fecha(cls, value: date) -> date:
+        if value > date.today():
+            raise ValueError("La fecha de inasistencia no puede ser futura")
+        return value
+
 class JustificativoUpdateDTO(BaseModel):
     model_config = ConfigDict(
         str_strip_whitespace=True,
@@ -42,7 +49,13 @@ class JustificativoUpdateDTO(BaseModel):
     fecha_inasistencia: date | None = None
     tipo_inasistencia: TipoInasistencia | None = None
     motivo: str | None = Field(None, min_length=10, max_length=500)
-    estado: EstadoJustificativo | None = None
+
+    @model_validator(mode="after")
+    def exigir_cambio(self):
+        if not self.model_dump(exclude_none=True, exclude_unset=True):
+            raise ValueError("Debe indicar al menos un campo para actualizar")
+        return self
+
 
 class JustificativoResponseDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)

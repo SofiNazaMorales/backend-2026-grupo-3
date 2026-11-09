@@ -1,8 +1,6 @@
-from fastapi import HTTPException
-from sqlalchemy.orm import Session
-from app.repositories.curso_repository import CursoRepository
+from app.domain.errores import ErrorAplicacion
+from app.infrastructure.repositories.curso_repository import CursoRepository
 from app.domain.curso import Curso
-from app.repositories.curso_repository import CursoRepository
 from app.schemas.curso_dto import CursoCreateDTO, CursoUpdateDTO
 
 
@@ -15,8 +13,8 @@ class CursoService:
         curso_existente = self.repository.obtener_por_id(datos.id_curso)
 
         if curso_existente is not None:
-            raise HTTPException(
-                status_code=400,
+            raise ErrorAplicacion(
+                status_code=409,
                 detail=f"Ya existe un curso con el ID '{datos.id_curso}'."
             )
 
@@ -25,8 +23,8 @@ class CursoService:
         )
 
         if codigo_existente is not None:
-            raise HTTPException(
-                status_code=400,
+            raise ErrorAplicacion(
+                status_code=409,
                 detail=(
                     f"Ya existe un curso con el código "
                     f"'{datos.codigo_curso}'."
@@ -45,21 +43,25 @@ class CursoService:
 
     def obtener_curso(self, id_curso: str) -> Curso:
 
-        curso = self.repository.obtener_por_id(id_curso)
+        curso = self.repository.obtener_por_id(id_curso.upper())
 
         if curso is None:
-            raise HTTPException(
+            raise ErrorAplicacion(
                 status_code=404,
                 detail=f"No existe un curso con el ID '{id_curso}'."
             )
 
         return curso
 
-    def actualizar_curso(db: Session, id_curso: str, datos_actualizados: dict):
-        repo = CursoRepository(db)
-
-        curso_existente = repo.obtener_por_id(id_curso)
-        if not curso_existente:
-            return None
-            
-        return repo.actualizar_en_bd(id_curso, datos_actualizados)
+    def actualizar_curso(self, id_curso: str, datos: CursoUpdateDTO) -> Curso:
+        curso = self.obtener_curso(id_curso)
+        cambios = datos.model_dump(exclude_unset=True, exclude_none=True)
+        if "codigo_curso" in cambios:
+            otro = self.repository.obtener_por_codigo(cambios["codigo_curso"])
+            if otro is not None and otro.id_curso != curso.id_curso:
+                raise ErrorAplicacion(409, "Ya existe un curso con ese código.")
+        valores = {"id_curso": curso.id_curso, "codigo_curso": curso.codigo_curso,
+                   "nombre_curso": curso.nombre_curso, "semestre": curso.semestre,
+                   "id_carrera": curso.id_carrera}
+        valores.update(cambios)
+        return self.repository.actualizar(Curso(**valores))

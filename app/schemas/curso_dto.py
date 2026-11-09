@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from typing import Optional
 
 class CursoCreateDTO(BaseModel):
@@ -43,6 +43,11 @@ class CursoCreateDTO(BaseModel):
         examples=["ICI-INF"]
     )
 
+    @field_validator("id_curso", "codigo_curso", "id_carrera")
+    @classmethod
+    def normalizar_codigo(cls, value: str) -> str:
+        return value.upper()
+
 class CursoUpdateDTO(BaseModel):
     model_config = ConfigDict(
         str_strip_whitespace=True,
@@ -53,6 +58,18 @@ class CursoUpdateDTO(BaseModel):
     nombre_curso: str | None = Field(None, min_length=3, max_length=100)
     semestre: int | None = Field(None, ge=1, le=14)
     id_carrera: str | None = Field(None, min_length=2, max_length=12)
+
+    @model_validator(mode="after")
+    def exigir_cambio(self):
+        if not self.model_dump(exclude_none=True, exclude_unset=True):
+            raise ValueError("Debe indicar al menos un campo para actualizar")
+        return self
+
+
+    @field_validator("codigo_curso", "id_carrera")
+    @classmethod
+    def normalizar_codigo(cls, value):
+        return value.upper() if value is not None else value
 
 class CursoResponseDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)

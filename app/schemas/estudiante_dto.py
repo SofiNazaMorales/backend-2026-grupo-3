@@ -1,5 +1,5 @@
 import re
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
 
 class EstudianteCreateDTO(BaseModel):
@@ -44,6 +44,8 @@ class EstudianteCreateDTO(BaseModel):
         if "-" not in rut_limpio:
             raise ValueError("El RUT debe incluir el guión de su dígito verificador (ej: 12345678-K)")
 
+        if rut_limpio.count("-") != 1:
+            raise ValueError("El RUT debe tener un solo guión")
         cuerpo, dv = rut_limpio.split("-")
         cuerpo_sin_puntos = cuerpo.replace(".", "")
 
@@ -64,6 +66,13 @@ class EstudianteUpdateDTO(BaseModel):
     email_institucional: EmailStr | None = None
     id_carrera: str | None = Field(None, min_length=2, max_length=12)
     estado_alumno: bool | None = None
+
+    @model_validator(mode="after")
+    def exigir_cambio(self):
+        if not self.model_dump(exclude_none=True, exclude_unset=True):
+            raise ValueError("Debe indicar al menos un campo para actualizar")
+        return self
+
 
 class EstudianteResponseDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)

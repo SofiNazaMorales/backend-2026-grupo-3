@@ -1,11 +1,12 @@
 from datetime import date
+from uuid import uuid4
 from app.domain.enums import EstadoJustificativo, TipoInasistencia
 from app.domain.justificativo import Justificativo
 from app.infrastructure.models.justificativo_model import JustificativoModel
 
 def justificativo_a_dominio(modelo: JustificativoModel) -> Justificativo:
     return Justificativo(
-        id_justificativo=modelo.id,
+        id_justificativo=modelo.id_justificativo,
         rut_estudiante=modelo.rut_estudiante,
         id_curso=modelo.id_curso,
         fecha_inasistencia=modelo.fecha_inasistencia,
@@ -23,7 +24,7 @@ def justificativo_a_dominio(modelo: JustificativoModel) -> Justificativo:
 
 def justificativo_a_modelo(dominio: Justificativo) -> JustificativoModel:
     return JustificativoModel(
-        id=dominio.id_justificativo or f"JUS-{dominio.rut_estudiante[:4]}",
+        id_justificativo=dominio.id_justificativo or str(uuid4()),
         rut_estudiante=dominio.rut_estudiante,
         id_curso=dominio.id_curso,
         fecha_inasistencia=dominio.fecha_inasistencia,

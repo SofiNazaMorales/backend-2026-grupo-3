@@ -10,9 +10,13 @@ class CarreraRepository:
 
     def crear(self, carrera: Carrera) -> Carrera:
         modelo = carrera_a_modelo(carrera)
-        self.session.add(modelo)
-        self.session.commit()
-        self.session.refresh(modelo)
+        try:
+            self.session.add(modelo)
+            self.session.commit()
+            self.session.refresh(modelo)
+        except Exception:
+            self.session.rollback()
+            raise
         return carrera_a_dominio(modelo)
 
     def obtener_por_id(self, carrera_id: str) -> Carrera | None:

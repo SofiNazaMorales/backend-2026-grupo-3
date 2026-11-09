@@ -1,0 +1,474 @@
+{
+  "fecha_utc": "2026-11-09T02:06:46.130Z",
+  "motor": "SQLite temporal; no certifica PostgreSQL",
+  "solicitudes": {
+    "total": 31,
+    "pending": 0,
+    "failed": 0
+  },
+  "aserciones": {
+    "total": 60,
+    "pending": 0,
+    "failed": 0
+  },
+  "fallos": [],
+  "casos": [
+    {
+      "nombre": "Crear estudiante",
+      "solicitud": "POST http://127.0.0.1:52618/estudiantes",
+      "obtenido": 201,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 201",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Consultar estudiante",
+      "solicitud": "GET http://127.0.0.1:52618/estudiantes/59.450.133-0",
+      "obtenido": 200,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 200",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Actualizar estudiante",
+      "solicitud": "PUT http://127.0.0.1:52618/estudiantes/59.450.133-0",
+      "obtenido": 200,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 200",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Eliminar estudiante sin justificativos",
+      "solicitud": "DELETE http://127.0.0.1:52618/estudiantes/59.450.133-0",
+      "obtenido": 204,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 204",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Comprobar eliminación",
+      "solicitud": "GET http://127.0.0.1:52618/estudiantes/59.450.133-0",
+      "obtenido": 404,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 404",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Crear justificativo y guardar ID",
+      "solicitud": "POST http://127.0.0.1:52618/justificativos",
+      "obtenido": 201,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 201",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Consultar el mismo ID - permite reiniciar aquí",
+      "solicitud": "GET http://127.0.0.1:52618/justificativos/6833f807-4f69-49ab-aae7-1d44c61f44b7",
+      "obtenido": 200,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 200",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Actualizar motivo",
+      "solicitud": "PUT http://127.0.0.1:52618/justificativos/6833f807-4f69-49ab-aae7-1d44c61f44b7",
+      "obtenido": 200,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 200",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Eliminar justificativo",
+      "solicitud": "DELETE http://127.0.0.1:52618/justificativos/6833f807-4f69-49ab-aae7-1d44c61f44b7",
+      "obtenido": 204,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 204",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Verificar 404 después de eliminar",
+      "solicitud": "GET http://127.0.0.1:52618/justificativos/6833f807-4f69-49ab-aae7-1d44c61f44b7",
+      "obtenido": 404,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 404",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Motivo demasiado corto",
+      "solicitud": "POST http://127.0.0.1:52618/justificativos",
+      "obtenido": 422,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 422",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Fecha futura",
+      "solicitud": "POST http://127.0.0.1:52618/justificativos",
+      "obtenido": 422,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 422",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Tipo fuera del Enum",
+      "solicitud": "POST http://127.0.0.1:52618/justificativos",
+      "obtenido": 422,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 422",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Página inválida",
+      "solicitud": "GET http://127.0.0.1:52618/justificativos?pagina=0",
+      "obtenido": 422,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 422",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Evaluación fuera de plazo",
+      "solicitud": "POST http://127.0.0.1:52618/justificativos",
+      "obtenido": 400,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 400",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Crear registro para límite de ediciones",
+      "solicitud": "POST http://127.0.0.1:52618/justificativos",
+      "obtenido": 201,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 201",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Edición 1 permitida",
+      "solicitud": "PUT http://127.0.0.1:52618/justificativos/ebae088f-35f9-46f2-8b8c-26d5cbc63e76",
+      "obtenido": 200,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 200",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contador persistido",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Edición 2 permitida",
+      "solicitud": "PUT http://127.0.0.1:52618/justificativos/ebae088f-35f9-46f2-8b8c-26d5cbc63e76",
+      "obtenido": 200,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 200",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contador persistido",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Edición 3 rechazada",
+      "solicitud": "PUT http://127.0.0.1:52618/justificativos/ebae088f-35f9-46f2-8b8c-26d5cbc63e76",
+      "obtenido": 400,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 400",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Regla de límite",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Limpiar registro de límite",
+      "solicitud": "DELETE http://127.0.0.1:52618/justificativos/ebae088f-35f9-46f2-8b8c-26d5cbc63e76",
+      "obtenido": 204,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 204",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Preparar registro de filtro 1",
+      "solicitud": "POST http://127.0.0.1:52618/justificativos",
+      "obtenido": 201,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 201",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Preparar registro de filtro 2",
+      "solicitud": "POST http://127.0.0.1:52618/justificativos",
+      "obtenido": 201,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 201",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Preparar registro de filtro 3",
+      "solicitud": "POST http://127.0.0.1:52618/justificativos",
+      "obtenido": 201,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 201",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Filtro, orden y paginación",
+      "solicitud": "GET http://127.0.0.1:52618/justificativos?id_curso=CRS-INF1108&estado=Pendiente&tipo_inasistencia=Clase%20Regular&ordenar_por=fecha_inasistencia&direccion=desc&pagina=1&limite=2",
+      "obtenido": 200,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 200",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Dos elementos por página y total sin cortar",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Limpiar registro de filtro 1",
+      "solicitud": "DELETE http://127.0.0.1:52618/justificativos/50a1fd35-42c2-4fe8-a9e0-8d7476afb205",
+      "obtenido": 204,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 204",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Limpiar registro de filtro 2",
+      "solicitud": "DELETE http://127.0.0.1:52618/justificativos/11dfa4ee-0149-444f-b04b-231a7d2e8763",
+      "obtenido": 204,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 204",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Limpiar registro de filtro 3",
+      "solicitud": "DELETE http://127.0.0.1:52618/justificativos/279fbdb2-ad5f-42a2-b9e9-26c2aa5d800e",
+      "obtenido": 204,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 204",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Recurso inexistente",
+      "solicitud": "GET http://127.0.0.1:52618/justificativos/NO-EXISTE-PRUEBA",
+      "obtenido": 404,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 404",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "RUT duplicado",
+      "solicitud": "POST http://127.0.0.1:52618/estudiantes",
+      "obtenido": 409,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 409",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Curso inexistente en clave foránea",
+      "solicitud": "POST http://127.0.0.1:52618/justificativos",
+      "obtenido": 409,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 409",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    },
+    {
+      "nombre": "Comprobar que la API sigue operativa",
+      "solicitud": "GET http://127.0.0.1:52618/estudiantes/20.123.554-5",
+      "obtenido": 200,
+      "esperado_y_resultado": [
+        {
+          "asercion": "HTTP 200",
+          "resultado": "OK"
+        },
+        {
+          "asercion": "Contrato global",
+          "resultado": "OK"
+        }
+      ]
+    }
+  ]
+}

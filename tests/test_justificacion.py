@@ -3,8 +3,8 @@ from datetime import date, timedelta
 import pytest
 from pydantic import ValidationError
 
-from app.domain.modelos import TipoInasistencia
-from app.schemas.justificacion import JustificacionCreate
+from app.domain import TipoInasistencia
+from app.schemas.justificativo_dto import JustificativoCreateDTO as JustificacionCreate
 
 
 def test_crear_justificacion_valida():

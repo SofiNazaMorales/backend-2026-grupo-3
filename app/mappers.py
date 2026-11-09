@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING
 from app.domain.curso import Curso
 
 if TYPE_CHECKING:
-    from app.models.curso import curso_model
-    from app.models.justificativo import justificativo_model
+    from app.infrastructure.models.curso_model import CursoModel as curso_model
+    from app.infrastructure.models.justificativo_model import JustificativoModel as justificativo_model
 
 
 def justificativo_a_dict(j: "justificativo_model") -> dict:

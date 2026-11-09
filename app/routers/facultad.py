@@ -4,8 +4,7 @@ from app.domain.enums import Facultad
 router = APIRouter(prefix="/facultades", tags=["Facultades"])
 
 
-def _envelope(success: bool, data=None, error=None, message: str = ""):
-    return {"success": success, "data": data, "error": error, "message": message}
+from app.respuestas import envelope as _envelope
 
 
 @router.get("")

@@ -1,6 +1,6 @@
 from datetime import date
 
-from app.domain.modelos import (
+from app.domain import (
     Carrera,
     Curso,
     Estudiante,
@@ -13,7 +13,8 @@ from app.domain.modelos import (
 
 def test_crear_justificativo():
     justificativo = Justificativo(
-        id_justificativo=1,
+        id_justificativo="1",
+        motivo="Justificación válida de prueba",
         rut_estudiante="20.123.554-5",
         id_curso="CRS-INF1108",
         fecha_inasistencia=date(2026, 9, 20),
@@ -21,7 +22,7 @@ def test_crear_justificativo():
         estado=EstadoJustificativo.PENDIENTE,
     )
 
-    assert justificativo.id_justificativo == 1
+    assert justificativo.id_justificativo == "1"
     assert justificativo.rut_estudiante == "20.123.554-5"
     assert justificativo.id_curso == "CRS-INF1108"
     assert justificativo.fecha_inasistencia == date(2026, 9, 20)

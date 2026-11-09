@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from app.schemas.curso import CursoCreate
+from app.schemas.curso_dto import CursoCreateDTO as CursoCreate
 
 
 def test_crear_curso_valido():
